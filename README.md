@@ -22,7 +22,7 @@ and
 
 and 
 
-[SKIRT][https://skirt.ugent.be/root/_home.html]
+[SKIRT](https://skirt.ugent.be/root/_home.html)
 
 ## Usage
 
