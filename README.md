@@ -22,7 +22,7 @@ termcolor
 ## Usage
 
 ### Add filters
-`python add_filters.py CSST.NUV,CSST.u,CSST.g --directory='CSST_filters'`
+`python add_filters.py CSST.NUV,CSST.u,CSST.g --directory='CSST_filters`
 
 throughput files should be readable by `np.loadtxt()`, and a header is required indicating the unit of wavelength
 
