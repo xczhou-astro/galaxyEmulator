@@ -51,31 +51,36 @@ def check_config(config):
     
     if not os.path.exists(config['filePath']):
         issue_flags['TNG_path_flag'] = 1
-        TNG_path_flag = 1
         flag_count += 1
     
     posprocessing_path = '/'.join(config['filePath'].split('/')[:-1]) + '/postprocessing'
     if not os.path.exists(posprocessing_path):
-        postprocessing_path_flag = 1
         issue_flags['postprocessing_path_flag'] = 1
         flag_count += 1
         
     if (config['simulationMode'] != 'ExtinctionOnly') \
             & (config['simulationMode'] != 'DustEmission'):
         issue_flags['simulationMode_flag'] = 1
-        simulationMode_flag = 1
         flag_count += 1
         
     if (config['simulationMode'] == 'DustEmission') \
             & (config['includeDust'] == False):
-        issue_flags['includeDust'] = 1
-        includeDust_flag = 1
+        issue_flags['includeDust_flag'] = 1
         flag_count += 1
+
+    if (config['simulationMode'] == 'DustEmission'):
+        if (config['dustEmissionType'] != 'Equilibrium')\
+            & (config['dustEmissionType'] != 'Stochastic'):
+            issue_flags['dustEmissionType_flag'] = 1
+
+    if (config['dustModel'] != 'ZubkoDustMix') \
+            & (config['dustModel'] != 'DraineLiDustMix')\
+                & (config['dustModel'] != 'ThemisDustMix'):
+        issue_flags['dustModel_flag'] = 1
         
     if (config['wavelengthGrid'] != 'Linear') \
             & (config['wavelengthGrid'] != 'Log'):
         issue_flags['wavelengthGrid_flag'] = 1
-        wavelengthGrid_flag = 1
         flag_count += 1
     
     if not config['randomViews']:
@@ -85,14 +90,12 @@ def check_config(config):
         
         if (len(inclinations) != numViews) | (len(azimuths) != numViews):
             issue_flags['angle_flag'] = 1
-            angle_flag = 1
             flag_count += 1
             
     if config['SEDFamily'] == 'BC03':
         if (config['initialMassFunction'] != 'Chabrier') \
                 & (config['initialMassFunction'] != 'Salpeter'):
             issue_flags['BC03_MF_flag'] = 1
-            BC03_MF_flag = 1
             flag_count += 1
 
     elif config['SEDFamily'] == 'FSPS':
@@ -100,11 +103,9 @@ def check_config(config):
                 & (config['initialMassFunction'] != 'Salpeter') \
                     & (config['initialMassFunction'] != 'Kroupa'):
             issue_flags['FSPS_MF_flag'] = 1
-            FSPS_MF_flag = 1
             flag_count += 1
     else:
         issue_flags['SEDFamily_flag'] = 1
-        SEDFamily_flag = 1
         flag_count += 1
         
     filters = split(config['filters'])
@@ -134,14 +135,12 @@ def check_config(config):
             fwhms = split(config['PSFFWHM'], float)
             if len(fwhms) != len(filters):
                 issue_flags['numPSF_flag'] = 1
-                numPSF_flag = 1
                 flag_count += 1
                 
     if config['includeBackground']:
         sigmas = split(config['backgroundSigma'], float)
         if len(sigmas) != len(filters):
             issue_flags['numBackground_flag'] = 1
-            numBackground_flag = 1
             flag_count += 1
             
             
@@ -150,12 +149,10 @@ def check_config(config):
 
     if max_pivot > maxWavelength:
         issue_flags['maxWavelength_flag'] = 1
-        maxWavelength_flag = 1
         flag_count += 1
     
     if (maxWavelength > 2 * 10**4) & (config['simulationMode'] != 'DustEmission'):
         issue_flags['reachInfrared_flag'] = 1
-        reachInfrared_flag = 1
         flag_count += 1
     
     surveys, numfilters = np.unique(surveys, return_counts=True)
@@ -180,21 +177,18 @@ def check_config(config):
                         RGBFilters = split(config[f'RGBFilters_{survey}'])
                         
                         if not len(RGBFilters) == 3:
-                            filtersNot3_flag = 1
                             survey_flags[f'filtersNot3_{survey}'] = filtersNot3_flag
                             flag_count += 1
                         else:
                             isinfilters = all([fil in filterNames for fil in RGBFilters])
         
                             if not isinfilters:
-                                RGBNotInFilters_flag = 1
                                 survey_flags[f'RGBNotInFilters_{survey}'] = RGBNotInFilters_flag
                                 flag_count += 1
                                 
                     else:
                         displayFilter = config[f'displayFilter_{survey}']
                         if not displayFilter in filterNames:
-                            filterNotIn_flag = 1
                             survey_flags[f'filterNotIn_{survey}'] = filterNotIn_flag
                             flag_count += 1
                 else:
@@ -208,12 +202,10 @@ def check_config(config):
     fixedRedshift = np.float32(config['fixedRedshift'])
     if (config['snapNum'] == '99') & (fixedRedshift == 0):
         issue_flags['fixedRedshift_flag'] = 1
-        fixedRedshift_flag = 1
         flag_count += 1
         
     if np.int32(config['numThreads']) > 24:
         issue_flags['numThreads_flag'] = 1
-        numThreads_flag = 1
     
     print('config:')
     for key in config.keys():
@@ -229,6 +221,8 @@ def check_config(config):
     issue('postprocessing_path_flag', 'postprocessing path not found')
     issue('simulationMode_flag', 'simulationMode unrecognized')
     issue('includeDust_flag', 'includeDust should be True when simulationMode is DustEmission')
+    issue('dustEmissionType_flag', 'dustEmissionType unrecognized')
+    issue('dustModel_flag', 'dustModel unrecognized')
     issue('wavelengthGrid_flag', 'wavelengthGrid unrecognized')
     issue('angle_flag', 'number of inclinations or azimuth inconsistent with numViews')
     issue('BC03_MF_flag', 'initialMassFunction unrecognized for BC03 SEDFamily')

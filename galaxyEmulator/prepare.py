@@ -112,8 +112,9 @@ def particles_from_tng(idx, snapnum,
     res['smoothLength'] = np.array([0.74] * size) # softening length from TNG website
     res['sfr'] = g.mass[mask] / np.float32(eval(config['ratioSFR']))
     res['Z'] = starPart['GFM_Metallicity'][mask]
-    res['compactness'] = np.array([10**np.float32(config['logCompactness'])] * size)
-    pressure = (10**np.float32(config['logPressure']) * const.k_B) * (u.J * u.cm**-3).to(u.J * u.m**-3)
+    # res['compactness'] = np.array([10**np.float32(config['logCompactness'])] * size) 
+    res['compactness'] = np.array([np.float32(config['logCompactness'])] * size)
+    pressure = (10**np.float32(config['logPressure']) * const.k_B) * (u.J * u.cm**-3).to(u.J * u.m**-3) # J * m**3 == 
     pressure = pressure.value
     res['pressure'] = np.array([pressure] * size) 
     res['covering'] = np.array([np.float32(config['coveringFactor'])] * size)
@@ -264,6 +265,11 @@ def modify_ski_file(z, boxLength, config):
 
     if SEDFamily == 'FSPSSEDFamily':
         data = data.replace('resolution="High"', '')
+
+    if mode == 'DustEmission':
+        dustEmissionType = config['dustEmissionType']
+        data = data.replace('dustEmissionType="Equilibrium"',
+                            f'dustEmissionType="{dustEmissionType}"')
     
     initialMassFunction = config['initialMassFunction']
     
@@ -278,6 +284,18 @@ def modify_ski_file(z, boxLength, config):
     
     maxWavelength = np.float32(config['maxWavelength'])
     data = data.replace('maxWavelength="1.2 micron"', f'maxWavelength="{maxWavelength} micron"')
+
+    dustConfig = '<ZubkoDustMix numSilicateSizes="15" numGraphiteSizes="15" numPAHSizes="15"/>'
+    dustModel = config['dustModel']
+    numSilicateSizes = np.int32(config['numSilicateSizes'])
+    numGraphiteSizes = np.int32(config['numGraphiteSizes'])
+    numPAHSizes = np.int32(config['numPAHSizes'])
+    numHydrocarbonSizes = np.int32(config['numHydrocarbonSizes'])
+    if dustModel == 'ThemisDustMix':
+        dustConfigNew = f'<{dustModel} numHydrocarbonSizes="{numHydrocarbonSizes}" numSilicateSizes="{numSilicateSizes}"/>'
+    else:
+        dustConfigNew = f'<{dustModel} numSilicateSizes="{numSilicateSizes}" numGraphiteSizes="{numGraphiteSizes}" numPAHSizes="{numPAHSizes}"/>'
+    data = data.replace(dustConfig, dustConfigNew)
 
     minLevel = np.int32(config['minLevel'])
     maxLevel = np.int32(config['maxLevel'])
