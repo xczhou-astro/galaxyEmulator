@@ -32,7 +32,7 @@ You can add filters directly to `Data/filters/`, with format like `CSST/filter.f
 
 ### Initialization
 
-`python init.py [--workspace=workspace]`
+`python init.py `
 
 
 ### Edit config.ini in workspace
