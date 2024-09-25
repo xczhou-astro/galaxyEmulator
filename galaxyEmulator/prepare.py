@@ -5,6 +5,8 @@ import astropy.units as u
 import astropy.constants as const
 import subprocess
 import illustris_python as ill
+import psutil
+import time
 from .utils import *
 
 class Galaxy:
@@ -114,7 +116,7 @@ def particles_from_tng(idx, snapnum,
     res['Z'] = starPart['GFM_Metallicity'][mask]
     # res['compactness'] = np.array([10**np.float32(config['logCompactness'])] * size) 
     res['compactness'] = np.array([np.float32(config['logCompactness'])] * size)
-    pressure = (10**np.float32(config['logPressure']) * const.k_B) * (u.J * u.cm**-3).to(u.J * u.m**-3) # J * m**3 == 
+    pressure = (10**np.float32(config['logPressure']) * const.k_B) * (u.J * u.cm**-3).to(u.J * u.m**-3) # J * m**3 == Pa
     pressure = pressure.value
     res['pressure'] = np.array([pressure] * size) 
     res['covering'] = np.array([np.float32(config['coveringFactor'])] * size)
@@ -231,33 +233,39 @@ def modify_ski_file(z, boxLength, config):
     config: configurations in config.ini
     
     return:
-    property: property useful for next step
+    properties: properties useful for next step
     '''
-    property = {}
+    properties = {}
     mode = config['simulationMode']
-    ski_file = f'../Data/ski_templates/{mode}.ski.template'
+    ski_file = f'../Data/ski_templates/{mode}_template.ski'
     
     with open(ski_file, 'r') as file:
         data = file.read()
         
-    # if config['generationMode'] == 'Local':
-    #     universe = '<FlatUniverseCosmology redshift="0.008" reducedHubbleConstant="0.6774" matterDensityFraction="0.3075"/>'
-    #     data = data.replace(universe, '<LocalUniverseCosmology/>')
-    #     distance = np.float32(config['localDistance'])
-    #     data = data.replace('distance="0 Mpc"', f'distance="{distance} Mpc"')
-    #     property['redshift'] = 0
-    #     property['lumiDis'] = distance
-
-    # else:
-    #     data = data.replace('redshift="0.008"', f'redshift="{z}"')
-    #     property['redshift'] = z
-    #     distance = Planck15.luminosity_distance(z).value
-    #     property['lumiDis'] = distance
-        
     data = data.replace('redshift="0.008"', f'redshift="{z}"')
-    property['redshift'] = z
-    distance = Planck15.luminosity_distance(z).value
-    property['lumiDis'] = distance
+    properties['redshift'] = z
+    distance = Planck15.luminosity_distance(z).value # in Mpc
+    properties['lumiDis'] = distance
+
+    numfilters = len(split(config['filters']))
+
+    if config['resolFromPix']:
+        pixelscales = split(config['pixelScales'], float) # in arcsec
+        resol = [distance * 10**6 * np.deg2rad(ang / 3600) for ang in pixelscales]
+        properties['resolution'] = resol # in pc
+        properties['angleRes'] = pixelscales
+        resolution = np.min(resol) # use finest resolution to output data cubes
+    else:
+        resolution = np.float32(config['resolution'])
+        properties['resolution'] = [resolution] * numfilters # in pc
+        pixelscale = np.rad2deg(resolution / (distance * 10**6)) * 3600 # in arcsec
+        pixelscales = [pixelscale] * numfilters
+        properties['angleRes'] = pixelscales
+
+    pixelscales_in_sr = [(ps**2 * u.arcsec**2).to(u.sr).value for ps in pixelscales]
+    properties['pixelscales_in_sr'] = pixelscales_in_sr
+
+    properties['baseRes'] = resolution
     
     SEDFamily = {'BC03': 'BruzualCharlotSEDFamily',
                  'FSPS': 'FSPSSEDFamily'}
@@ -316,23 +324,20 @@ def modify_ski_file(z, boxLength, config):
     grid_type = grid_type[wavelengthGrid]
     data = data.replace('LinWavelengthGrid', grid_type)
     
-    numWavelengths = config['numWavelengths']
+    numWavelengths = np.int32(config['numWavelengths'])
     data = data.replace('numWavelengths="1000"', f'numWavelengths="{numWavelengths}"')
     
     numViews = np.int32(config['numViews'])
     randomViews = config['randomViews']
     if randomViews == True:
-        inclinations = np.random.uniform(0, 180, numViews)
-        azimuths = np.random.uniform(-360, 360, numViews)
+        inclinations = np.random.uniform(0, 180, numViews).tolist()
+        azimuths = np.random.uniform(-360, 360, numViews).tolist()
     else:
-        
         inclinations = split(config['inclinations'], float)
         azimuths = split(config['azimuths'], float)
 
-    # property['inclinations'] = inclinations.tolist()
-    # property['azimuths'] = azimuths.tolist()
-    property['inclinations'] = inclinations
-    property['azimuths'] = azimuths
+    properties['inclinations'] = inclinations
+    properties['azimuths'] = azimuths
     
     begin_str = '<FullInstrument'
     end_str = '</FullInstrument>'
@@ -349,9 +354,11 @@ def modify_ski_file(z, boxLength, config):
     instrumentInfo = '\n' + instrumentInfo + '\n'
     fovscale = np.float32(config['FoVboxLengthRatio'])
     fov = fovscale * boxLength * 10**3 # in pc
-    property['FoV'] = fov
-    
-    numPixels = int(fov / np.float32(config['resolution']))
+    properties['FoV'] = fov
+
+    numPixels = int(fov / resolution)
+
+    recordComponents = 'true' if config['recordComponents'] else 'false'
     
     insert_begin_idx = idx_begin
     for i, (inclination, azimuth) in enumerate(zip(inclinations, azimuths)):
@@ -362,6 +369,8 @@ def modify_ski_file(z, boxLength, config):
         info = info.replace('fieldOfViewY="1e5 pc"', f'fieldOfViewY="{fov} pc"')
         info = info.replace('numPixelsX="1000"', f'numPixelsX="{numPixels}"')
         info = info.replace('numPixelsY="1000"', f'numPixelsY="{numPixels}"')
+        info = info.replace('recordComponents="false"', f'recordComponents="{recordComponents}"')
+        
         
         data = data[:insert_begin_idx] + info
         insert_begin_idx = insert_begin_idx + len(info)
@@ -372,7 +381,18 @@ def modify_ski_file(z, boxLength, config):
     with open(workingDir + '/skirt.ski', 'w') as file:
         file.write(data)
 
-    return property
+    
+    print('------estimate memory usage------')
+    print(f'numViews: {numViews}')
+    print(f'numSpatialPixels: {numPixels}')
+    print(f'numWavelengthPixels: {numWavelengths}')
+    factor = 7 if config['recordComponents'] else 1
+    numPixels = np.float64(numPixels) # avoid overflow
+    dataCubeSize = np.int64(numPixels ** 2 * numWavelengths * numViews)
+    dataSize_in_GB = np.around(dataCubeSize * 8 * factor * 1e-9, 3)
+    print(f'Estimated memory usage: {dataSize_in_GB} GB')
+
+    return properties
 
 def run_skirt(config):
     

@@ -11,7 +11,7 @@ args = parser.parse_args()
 workspace = args.workspace
 
 os.makedirs(workspace, exist_ok=True)
-src = 'Data/config_templates.ini'
+src = 'Data/config_template.ini'
 dst = os.path.join(workspace, 'config.ini')
 
 shutil.copy(src, dst)

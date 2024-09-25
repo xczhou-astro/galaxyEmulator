@@ -14,7 +14,7 @@ def emulator(config_file):
     config = get_config(config_file)
     issue_flag = check_config(config)
     if issue_flag > 0:
-        print('Please edit config.ini')
+        print('Conflications occur, Please edit config.ini')
         sys.exit(0)
     
     snapnum = np.int32(config['snapNum'])
@@ -47,6 +47,9 @@ def emulator(config_file):
         print(f'Generate {numGen} galaxies')
         rand = np.random.choice(subhaloNums, numGen, replace=False)
         indices = subhalo_indices[rand]
+    
+    if 'subhaloIDs' in config:
+        indices = split(config['subhaloIDs'], int)
         
     for subhaloID in indices:
         print(f'Processing subhalo {subhaloID}')
@@ -64,12 +67,12 @@ def emulator(config_file):
         particles_from_tng(subhaloID, snapnum, snapz, subhalos, boxLength, config)
         fixedRedshift = np.float32(config['fixedRedshift'])
         print('Creating .ski file')
-        property = modify_ski_file(fixedRedshift, boxLength, config)
+        properties = modify_ski_file(fixedRedshift, boxLength, config)
         print('Beginning skirt program')
         flag = run_skirt(config)
         if flag:
             print(colored('run SKIRT error, exit', 'red'))
             sys.exit(0)
         print(f'Postprocessing subhalo {subhaloID}')
-        postprocess(subhaloID, property, config)
+        postprocess(subhaloID, properties, config)
         print(f'Finshing processing subhalo {subhaloID}')

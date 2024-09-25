@@ -5,6 +5,11 @@ import astropy.constants as const
 import matplotlib.pyplot as plt
 from PIL import Image
 import sys
+import os
+from matplotlib_scalebar.scalebar import ScaleBar
+from matplotlib_scalebar.dimension import _Dimension
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import shutil
 
 def u2temp(u_energy, x_e):
     '''
@@ -164,21 +169,52 @@ def convert_to_rgb(bandpassImage, idx=[2, 3, 5]):
 
     return object_RGB.imgRGB
 
-def plot_image(image, savedFilename=None):
+class ParsecDimension(_Dimension):
+    def __init__(self):
+        super().__init__('pc')
+        self.add_units('kpc', 1000)
+
+def plot_image(image, plot_infos, savedFilename=None):
     '''
     image: RGB image
     savedFilename: directory to save image, if not None
     '''
-    plt.figure()
-    plt.imshow(image)
-    plt.axis('off')
+    res = plot_infos['resol_in_pc']
+    pixels = plot_infos['pixels']
+    # unit = plot_infos['unit']
+    z = str(np.around(plot_infos['z'], 2))
+    ID = plot_infos['ID']
+    
+    fig, ax = plt.subplots()
+    ax.axis('off')
+    im = ax.imshow(image)
+    scalebarSize = 0.25 * pixels * res # in pc
+    if scalebarSize > 1000:
+        scalebarUnit = 'kpc'
+        scalebarSize = np.around(scalebarSize / 1000, 1)
+    else:
+        scalebarUnit = 'pc'
+        scalebarSize = np.around(scalebarSize, 1)
+    
+    pc_dim = ParsecDimension()
+    
+    scalebar = ScaleBar(res, 'pc', dimension=pc_dim, 
+                        fixed_value=scalebarSize, fixed_units=scalebarUnit, frameon=False,
+                        location='lower right', scale_loc='top',
+                        color='white', font_properties={'size': 12})
+    ax.add_artist(scalebar)
+    ax.text(x=0.05, y=0.1, s=fr'$z$={z}', fontsize=12,
+            transform=ax.transAxes, color='white')
+    ax.text(x=0.05, y=0.05, s=f'ID:{ID}', fontsize=12,
+            transform=ax.transAxes, color='white')
+    # divider = make_axes_locatable(ax)
+    # cax = divider.append_axes('right', size='5%', pad=0.05)
+    # fig.colorbar(im, cax=cax, label=unit)
     if savedFilename is not None:
         plt.savefig(savedFilename)
         plt.close()
     else:
         plt.show()
-        
-    # should add a scale bar here
 
 
 def plot_sed(sed, logscale=True, savedFilename=None):
@@ -188,10 +224,10 @@ def plot_sed(sed, logscale=True, savedFilename=None):
     '''
     plt.figure()
     plt.plot(sed[:, 0] * 10**4, sed[:, 1], label='Total')
-    plt.plot(sed[:, 0] * 10**4, sed[:, 2], label='Transparent')
+    # plt.plot(sed[:, 0] * 10**4, sed[:, 2], label='Transparent')
     if logscale:
         plt.xscale('log')
-    plt.legend(frameon=False)
+    # plt.legend(frameon=False)
     plt.xlabel(r'Wavelength $[\AA]$')
     plt.ylabel(r'$F_{\nu}\ [Jy]$')
     if savedFilename is not None:
@@ -226,17 +262,28 @@ def get_wavelength_scale(filename):
 
 def calc_pivot(survey, filter):
     
-    filterName = f'../Data/filters/{survey}/{filter}.fil'
+    filterDir = f'../Data/filters/{survey}'
+    filterLs = os.listdir(filterDir)
+    filterNames = [name.split('.')[0] for name in filterLs]
+    filename = filterLs[filterNames.index(filter)]
+    filterName = os.path.join(filterDir, filename)
         
     wavelength_scale = get_wavelength_scale(filterName)
     
-    transmission = np.loadtxt(filterName)
+    try:
+        transmission = np.loadtxt(filterName)
+    except:
+        transmission = np.load(filterName)
     
     transmission[:, 0] = transmission[:, 0] * wavelength_scale
     
-    numerator = np.trapezoid(transmission[:, 1], transmission[:, 0])
-    denomerator = np.trapezoid(transmission[:, 1] * transmission[:, 0]**-2,
+    numerator = np.trapz(transmission[:, 1], transmission[:, 0])
+    denomerator = np.trapz(transmission[:, 1] * transmission[:, 0]**-2,
                                transmission[:, 0])
     pivot = np.sqrt(numerator/denomerator)
     
     return pivot
+
+def copyfile(src, tar):
+    if os.path.exists(src) and not os.path.exists(tar):
+        shutil.copyfile(src, tar)
