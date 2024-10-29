@@ -139,112 +139,165 @@ Run postprocessing for subhalo obtained before.
 ## Config.ini
 `dataDir`:  
 `str`, Data directory of galaxyEmulator.  
+
 `filePath`:  
 `str`, Directory for TNG simulation.  
+
 `workingDir`:  
 `str`, Directory to execution of SKIRT.  
+
 `simulationMode`:  
 `str`, `ExtinctionOnly` or `DustEmission`, Simulation Mode, `DustEmission` should be used when near- or mid-infrared bands are considered.  
+
 `includeDust`:  
 `bool`, If add dusts generated from Gas particles; must be True if `simulationMode=DustEmission`  
+
 `dustEmissionType`:  
 `str`, `Equilibrium` or `Stochastic`, Dust emission type.  
+
 `dustModel`:  
 `str`, `ZubkoDustMix`, `DraineLiDustMix` or `ThemisDustMix`, Dust model.  
+
 `minWavelength`, `maxWavelength`:  
 `float`, Considered wavelength range, in micron; `maxWavelength` should be higher than maximum wavelength of filters considered.  
+
 `boxLengthScale`:  
-`float`, Determine the boxsize to retrieve particles; 
+`float`, Determine the boxsize to retrieve particles;  
+
 `maxBoxLength`:  
 `float`, Maximum boxsize, in kpc; boxisze = min(halfStellarMassRadius * `boxLengthScale`, `maxBoxLength`).  
+
 `wavelengthGrid`:  
 `str`, `Linear` or `log`, Wavelength grid type for SKIRT.  
+
 `numWavelengths`:  
-`int`, Wavelength bins for SKIRT. 
+`int`, Wavelength bins for SKIRT.  
+
 `minLevel`, `maxLevel`:  
 `int`: Octree min/max level refinement for dust calculation.  
+
 `numPackets`:  
 `float`: number of photo packets launched during simulation; determine the level of signal to noise in the results.  
+
 `SEDFamily`:  
-`str`, `BC03` or `FSPS`, SED family for quenched star particles  
+`str`, `BC03` or `FSPS`, SED family for quenched star particles.  
+
 `initialMassFunction`:  
 `str`, `Chabrier` or `Salpeter` for `BC03`; `Chabrier`, `Salpeter` or `Kroupa` for `FSPS`, Intial mass function for SED family.  
+
 `minStellarMass`, `maxStellarMass`:  
 `float` or `inf`, Stellar mass range for subhalos, in 1e10 Msun; `inf` for infinite.  
+
 `numViews`:  
 `int`, Number of instrument views for datacube generation by SKIRT.  
+
 `randomViews`:  
 `bool`, If specify views by randoms.  
+
 `inclinations`, `azimuths`:  
 `float (numViews,)`, Views; must be provided if `randomViews=False`; inclinations: 0 ~ 180, azimuths: -360 ~ 360.  
+
 `FoVboxLengthRatio`:  
 `float`, Ratio for field of view, Fov = Boxsize * `FoVboxLengthRatio`.  
+
 `postProcessing`:  
 `bool`, If run postprocessing.  
+
 `saveDataCube`:  
 `bool`, If save data cubes; must be True if `postProcessing=False`.  
+
 `spatialResol`:  
 `float`, Spatial resolution for data cube, in pc; must be provided if `postProcessing=False`.  
+
 `surveys`:  
 `str (N,)`, Considered surveys; must be provided if `postProcessing=True`.  
+
 `displaySED`:  
-`bool`, If display SED. 
+`bool`, If display SED.  
+
 `displaySEDxlogscale`:  
 `bool`, If display SED in logscale for wavelength.  
+
 `snapNum`:  
 `int`,  Snapshot ID of TNG simulation.  
+
 `fixedRedshift`:  
 `float`, Redshift of snapshot ID; should be larger than 0 when `snapNum=99` to avoid error.  
+
 `numThreads`:  
 `int`, Number of Threads to run SKIRT.  
+
 `recordComponents`:  
 `bool`, If including transparent, primary direct, primary scattered, secondarytransparent, secondarydirect, secondaryscattered components for data cube and SED; Consumption of memory increases to 7 times if True.  
+
 `ageThreshold`:  
 `float`, Age threshold for discriminating star-forming and quenched star particles, in Myr.  
+
 `ratioSFR`:  
 `float`, SFR = mass / `ratioSFR` for star-forming particles.  
+
 `logCompactness`:  
 `float`, Compactness = 10^`logCompactness` for star-forming particles.  
+
 `logPressure`:  
-`float`, log10[(Pressure/k_B)/cm^-3 K] = `logPressure` for star-forming particles.  \
+`float`, log10[(Pressure/k_B)/cm^-3 K] = `logPressure` for star-forming particles.  
+
 `coveringFactor`:  
 `float`, Covering factor for star-forming particles.  
+
 `temperatureThreshold`:  
 `float`, Gas particles lower than `temperatureThreshold` will be considered as dusts.  
+
 `numSilicateSizes`, `numGraphiteSizes`, `numPAHSizes`, `numHydrocarbonSizes`:  
 `int`, Number of bins for dust grains.  
 
 ## Config_\[survey\].ini
 Config_\[survey\].ini is generated if `postProcessing=True` and `surveys` are provided.  
+
 `filters`:  
 `str (N,)`, Considered filters for survey.  
+
 `resolFromPix`:  
 `bool`, If use resolution derived from pixel scales; instrumental effects can only be added if `resolFromPix=False`.  
+
 `resolution`:  
 `float`, Spatial resolution, in pc; override `spatialResol`.  
+
 `pixelScales`:  
 `float (N,)` or `float (1,)`, Pixel scales for considered filters, in arcsec; provide one value if homegenous, otherwise must be consistent with filters.  
+
 `numExposure`:  
 `int (N,)` or `int (1,)` Number exposures or number of filters.  
+
 `exposureTime`:  
 `float`, Exposure time, in second.  
+
 `aperture`:  
 `float`, Aperture size for instrument, in meter.  
+
 `includePSF`:  
 `bool`, If include PSF effects; can be True if `resolFromPix=True`, otherwise must be False.  
+
 `PSFFromFile`:  
 `bool`, If PSFs are from files; pixel scales of PSF array must be consistent with `pixelScales`.  
+
 `PSFFWHM`:  
 `float (N,)` or `float (1,)`, FWHM of PSFs in Moffat model.  
+
 `includeBkg`:
 `bool`, If include background; can be True if `resolFromPix=True`, otherwise must be False.  
+
 `bkgNoise`:  
 `float (N,)`, Sigmas for Gaussian background for each filter.  
+
 `imgDisplay`:  
 `bool`, If display galaxy images.  
+
 `RGBImg`:  
 `bool`, If display rgb image created by 3 bands.  
+
 `RGBFilters`:  
 `str (3,)`, 3 bands to create rgb image.  
+
 `displayFilter`:  
-`str`, Band image to display if `RGBImg=False`
+`str`, Band image to display if `RGBImg=False`.  
