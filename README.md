@@ -69,16 +69,18 @@ conf = config.get_config()
 
 preprocess = PreProcess(conf)
 preprocess.get_subhalos()
-preprocess.get_subhaloIDs()
+subhaloIDs = preprocess.get_subhaloIDs()
 
-preprocess.subhalo(subhaloID=2)
-preprocess.prepare()
+for ID in subhaloIDs:
+    preprocess.subhalo(subhaloID=ID)
+    preprocess.prepare()
 
-preprocess.runSKIRT()
+    preprocess.runSKIRT()
 
-postprocess = PostProcessing(properties=preprocess.properties, conf)
-postprocess.runPostProcess()
-```
+    postprocess = PostProcessing(properties=preprocess.properties, conf)
+    postprocess.runPostProcess()
+```  
+Or interactively run in ipython/jupyter specifying the subhaloIDs 
 
 ## Classes
 ### Configuration
