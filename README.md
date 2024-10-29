@@ -53,7 +53,10 @@ python init.py -w=workspace
 config_\[survey\].ini will be created if `postprocessing` is True and `surveys` are given in config.ini
 
 ### Run
+Enter workspace, and create a python file named emulator.py
 ```Python
+# emulator.py
+
 import sys
 sys.path.append('.')
 
