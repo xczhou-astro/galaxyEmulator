@@ -135,3 +135,5 @@ postprocess = PostProcessing(properties, conf)
 postprocess.runPostProcess()
 ```
 Run postprocessing for subhalo obtained before.  
+
+## Config.ini
