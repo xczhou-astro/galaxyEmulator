@@ -3,6 +3,7 @@
 Galaxy emulation from [IllustrisTNG](https://www.tng-project.org/) using [SKIRT](https://skirt.ugent.be/root/_home.html) for various observations.
 
 ## Folder tree
+```bash
 ├── galaxyEmulator/  
 │   ├── Data/  
 │   ├── galaxyEmulator/  
@@ -19,6 +20,7 @@ Galaxy emulation from [IllustrisTNG](https://www.tng-project.org/) using [SKIRT]
     └── offsets/  
         ├── offsets_N.hdf5  
         └── ...  
+```
 
 ## Dependence
 Python verison:  
