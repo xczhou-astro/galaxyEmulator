@@ -3,22 +3,22 @@
 Galaxy emulation from [IllustrisTNG](https://www.tng-project.org/) using [SKIRT](https://skirt.ugent.be/root/_home.html) for various observations.
 
 ## Folder tree
-├── galaxyEmulator/
-│   ├── Data    
-│   ├── galaxyEmulator
-│   ├── Notebooks
-│   └── (workspace)
-├── TNG-100/
-│   ├── groups_N/
-│   │   ├── fof_subhalo_tab_N.n.hdf5
-│   │   └── ...
-│   └── snapdir_N/
-│       ├── snap_N.n.hdf5
-│       └── ...
-└── postprocessing/
-    └── offsets/
-        ├── offsets_N.hdf5
-        └── ...
+├── galaxyEmulator/  
+│   ├── Data/  
+│   ├── galaxyEmulator/  
+│   ├── Notebooks/  
+│   └── (workspace)/  
+├── TNG-100/  
+│   ├── groups_N/  
+│   │   ├── fof_subhalo_tab_N.n.hdf5  
+│   │   └── ...  
+│   └── snapdir_N/  
+│       ├── snap_N.n.hdf5  
+│       └── ...  
+└── postprocessing/  
+    └── offsets/  
+        ├── offsets_N.hdf5  
+        └── ...  
 
 ## Dependence
 Python verison:  
@@ -76,7 +76,7 @@ postprocess.runPostProcess()
 ```
 
 ## Classes
-### `Configuration`
+### Configuration
 ```Python
 config = Configuration(main_config_file)
 ```
@@ -128,5 +128,3 @@ postprocess = PostProcessing(properties, conf)
 postprocess.runPostProcess()
 ```
 Run postprocessing for subhalo obtained before.  
-
-## Config.ini
