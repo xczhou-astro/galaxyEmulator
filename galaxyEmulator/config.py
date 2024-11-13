@@ -5,21 +5,17 @@ from .utils import *
 
 class Configuration:
 
-    def __init__(self, main_config_file):
-        self.main_config_file = main_config_file
-        self.main_config = self.read_config(self.main_config_file)
+    def __init__(self, main_config_file='../Data/config/config.ini'):
+        self.main_config = self.__read_config(main_config_file)
         
-        base_dir = '/'.join(self.main_config_file.split('/')[:-1])
-        self.survey_config_file = os.path.join(base_dir,
-                                               'config_survey.ini')
-        self.survey_config = self.read_config(self.survey_config_file)
+        survey_config_template = os.path.join(self.main_config['dataDir'], 'config/config_survey.ini')
+        self.survey_config_template = self.__read_config(survey_config_template)
+        
+        self.surveys = self.__retrieve_surveys()
         
         self.flag_count = 0
-        
-    def read_config(self, file, instrument=None):
 
-        print('Please edit config.ini')
-        
+    def __read_config(self, file, instrument=None):
         if instrument is not None:
             suffix = f'_{instrument}'
         else:
@@ -32,64 +28,60 @@ class Configuration:
                 if line.startswith('#') or len(line) == 0:
                     continue
                 key, val = "".join(line.split()).split('=')
-                
+
                 if len(val) == 0:
                     continue
-                
                 key = key + suffix
-                
                 config[key] = val
-                
+
                 if val == 'True':
                     config[key] = True
                 elif val == 'False':
                     config[key] = False
                 else:
                     pass
-        return config
-            
-    # def retrieve_config(self):
-        
-    #     main_config = self.read_config(self.main_config_file)
-
-    #     if 'postProcessing' in main_config and main_config['postProcessing']:
-    #         if 'surveys' in main_config:
-    #             self.surveys = split(main_config['surveys'])
-    #             for survey in self.surveys:
-    #                 config_survey_file = os.path.join(self.config_dir, f'config_{survey}.ini')
-    #                 if not os.path.exists(config_survey_file):
-    #                     print(colored(f'config_{survey} is not provided.', 'red'))
-    #                 else:
-    #                     config_survey = self.read_config(config_survey_file, instrument=survey)
-    #                     main_config = main_config | config_survey
-    #         else:
-    #             print(colored('surveys are not provided.', 'red'))
-        
-    #     return main_config
-    
-    def create_survey_config(self):
-        if 'postProcessing' in self.main_config and self.main_config['postProcessing']:
-            if 'surveys' in self.main_config:
-                self.surveys = split(self.main_config['surveys'])
-                survey_config = {}
-                for survey in self.surveys:
-                    for key, value in self.survey_config.items():
-                        survey_config[key + f'_{survey}'] = value
-
-                    print(f'Please edit config_{survey}.ini')
                 
+        return config
+    
+    def __retrieve_surveys(self):
+        if 'postProcessing' in self.main_config and self.main_config['postProcessing']:
+            surveys = split(self.main_config['surveys'])
+            return surveys
+        else:
+            return None
+
+    def __create_survey_config(self):
+        survey_config = {}
+        if self.surveys is not None:
+            for survey in self.surveys:
+                for key, value in self.survey_config_template.items():
+                    survey_config[key + f'_{survey}'] = value
+            
+        else:
+            pass
+        
         return survey_config
-                    
+
+    
     def get_config(self):
-        survey_config = self.create_survey_config()
-        self.config = self.main_config | survey_config
+        if self.surveys is not None:
+            for survey in self.surveys:
+                self.config = self.main_config
+                if os.path.exists(f'config_{survey}.ini'):
+                    survey_config = self.__read_config(f'config_{survey}.ini', instrument=survey)
+                    self.config = self.config | survey_config
+                else:
+                    survey_config = self.__create_survey_config()
+                    self.config = self.config | survey_config
+                    self.__save_config()
+        else:
+            self.config = self.main_config
+            
         self.check_config()
-        if not os.path.exists('config.ini'):
-            self.save_config()
-        
         return self.config
-        
-    def save_config(self):
+    
+    
+    def __save_config(self):
 
         keys = list(self.config.keys())
         if len(self.surveys):
@@ -170,7 +162,7 @@ class Configuration:
 
     def check_config(self):
 
-        print(colored('Conflicts on config are indicated in', 'green'), colored('RED', 'red'))
+        # print(colored('Conflicts on config are indicated in', 'green'), colored('RED', 'red'))
 
         if self.exist('filePath'):
             if not os.path.exists(self.config['filePath']):
@@ -420,4 +412,7 @@ class Configuration:
         self.exist('numPAHSizes')
         self.exist('numHydrocarbonSizes')
 
+        if self.flag > 0:
+            print(colored('Conflicts on config are indicated in', 'green'), colored('RED', 'red'))
+            
         return self.flag_count
