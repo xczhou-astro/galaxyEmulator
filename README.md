@@ -46,11 +46,14 @@ Other packages:
 ```Python
 python init.py -w=workspace
 ```
-config.ini will be created in workspace, edit this file then:
+config.ini will be created in workspace, edit this file and then:
 ```
 python init.py -w=workspace
 ```
-config_\[survey\].ini will be created if `postprocessing` is True and `surveys` are given in config.ini
+
+config_\[survey\].ini will be created if `postprocessing` is True and considered `surveys` are given in config.ini.  
+
+The two initialization steps are for simultaneously considering different surveys, as their instrumental parameters differ.  
 
 ### Run
 Enter workspace, and create a python file named emulator.py
@@ -58,7 +61,7 @@ Enter workspace, and create a python file named emulator.py
 # emulator.py
 
 import sys
-sys.path.append('.')
+sys.path.append('..')
 
 from galaxyEmulator.config import Configuration
 from galaxyEmulator.preprocess import PreProcess
