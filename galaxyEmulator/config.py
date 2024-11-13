@@ -7,20 +7,19 @@ class Configuration:
 
     def __init__(self, dataDir='../Data', surveys=None):
 
-        main_config_file = os.path.join(dataDir, 'config/config.ini')
+        main_config_file = os.path.join(dataDir, 'config/config_main.ini')
         self.main_config_template = self.__read_config(main_config_file)
 
         survey_config_file = os.path.join(dataDir, 'config/config_survey.ini')
         self.survey_config_template = self.__read_config(survey_config_file)
 
+        if isinstance(surveys, list):
+            surveys = ','.join(surveys)
+
         if surveys is not None:
             self.surveys = split(surveys)
         else:
             self.surveys = None
-
-        # self.__modify_main_config()
-        # self.config = self.get_config()
-        # self.__check_config()
 
     def add_survey(self, surveys):
         surveys_add = split(surveys)
@@ -42,8 +41,8 @@ class Configuration:
         for key, value in self.survey_config_template.items():
             survey_config[key + f'_{survey}'] = value
         return survey_config
-
-    def get_config(self):
+    
+    def __create_config(self):
         if self.surveys is not None:
             self.config = self.main_config_template
             for survey in self.surveys:
@@ -52,17 +51,20 @@ class Configuration:
         else:
             self.config = self.main_config_template
 
-        self.__modify_main_config()
-        self.save_config()
-        self.check_config()
         return self.config
 
-    def save_config(self):
+    def get_config(self):
+        if not os.path.exists('config.ini'):
+            self.__create_config()
+        else:
+            self.config = self.__read_config('config.ini')
+
+    def save_config(self, directory='.'):
         keys = list(self.config.keys())
         if self.surveys is not None:
             for survey in self.surveys:
                 keys_survey = [key for key in keys if survey in key]
-                filename = f'config_{survey}.ini'
+                filename = os.path.join(directory, f'config_{survey}.ini')
                 with open(filename, 'w') as f:
                     for key in keys_survey:
                         key_strip = key.strip(f'_{survey}')
@@ -70,7 +72,7 @@ class Configuration:
                         f.write('\n')
                         keys.remove(key)
         
-        main_config_filename = 'config.ini'
+        main_config_filename = os.path.join(directory, 'config.ini')
         with open(main_config_filename, 'w') as f:
             for key in keys:
                 f.write(key + ' = ' + str(self.config[key]))
