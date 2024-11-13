@@ -19,7 +19,7 @@ class ParsecDimension(_Dimension):
         super().__init__('pc')
         self.add_units('kpc', 1000)
 
-class PostProcessing:
+class PostProcess:
 
     def __init__(self, properties, config):
 
