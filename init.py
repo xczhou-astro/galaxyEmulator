@@ -7,7 +7,7 @@ from galaxyEmulator.config import Config
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-w', '--workspace', type=str, default='workspace')
-parser.add_argument('-s', '--surveys', type=str, default='CSST')
+parser.add_argument('-s', '--surveys', type=str, default='None')
 
 args = parser.parse_args()
 
@@ -16,7 +16,7 @@ surveys = args.surveys
 
 os.makedirs(f'{workspace}',exist_ok=True)
 
-configuration = Config('Data', surveys=surveys)
+configuration = Config(surveys=surveys, dataDir='Data')
 conf = configuration.get_config()
 
-print('Configuration files are created.')
+print('Configuration files are created. Please edit them!')

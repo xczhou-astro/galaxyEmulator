@@ -5,7 +5,7 @@ from .utils import *
 
 class Configuration:
     
-    def __init__(self, surveys=None):
+    def __init__(self, surveys=None, dataDir='../Data'):
         
         if isinstance(surveys, list):
             surveys = ','.join(surveys)
@@ -15,10 +15,14 @@ class Configuration:
         else:
             self.surveys = None
         
-        self.main_config_template = self.__read_config('../Data/config/config_main.ini')
-        self.__modify_main_config()
+        if not os.path.exists('config.ini'):
+            self.main_config_template = self.__read_config(os.path.join(dataDir, 'config/config_main.ini'))
+        else:
+            self.main_config_template = self.__read_config('config.ini')
         
-        self.survey_config_template = self.__read_config('../Data/config/config_survey.ini')
+        self.survey_config_template = self.__read_config(os.path.join(dataDir, '/config/config_survey.ini'))
+
+        self.flag_count = 0
             
     def __to_string(self, attr):
         if isinstance(attr, list):
@@ -31,7 +35,7 @@ class Configuration:
     def add_survey(self, surveys):
         surveys_add = split(self.__to_string(surveys))
         if self.surveys is None:
-            self.surveys = [surveys_add]
+            self.surveys = surveys_add
         else:
             self.surveys += surveys_add
             
@@ -88,12 +92,14 @@ class Configuration:
         else:
             config = self.main_config_template
             
-        return self.config
+        return config
     
     def get_config(self):
+        self.__modify_main_config()
         self.config = self.__create_config()
         self.save_config()
         self.check_config()
+        return self.config
         
     def save_config(self, directory='.'):
         keys = list(self.config.keys())
@@ -175,7 +181,8 @@ class Configuration:
 
     def check_config(self):
 
-        # print(colored('Conflicts on config are indicated in', 'green'), colored('RED', 'red'))
+        print(colored('Conflicts in config are indicated in', 'green'), colored('RED.', 'red'))
+
 
         if self.__exist('filePath'):
             if not os.path.exists(self.config['filePath']):
@@ -297,7 +304,7 @@ class Configuration:
                         filters = split(filters)
                         for filter in filters:
                             if not os.path.exists(f'../Data/filters/{survey}/{filter}.fil'):
-                                self.__issue(f'Throughput file {survey}/{filter} not found')
+                                self.__issue(f'Throughput file {survey}/{filter} not found! Please specify correct filters!')
                                 # self.__issue('Please use add_filters.py or directly add them in Data/filters.')
                                 self.flag_count += 1
                             else:
@@ -425,9 +432,7 @@ class Configuration:
         self.__exist('numPAHSizes')
         self.__exist('numHydrocarbonSizes')
 
-        if self.flag_count > 0:
-            print(colored('Conflicts in config are indicated in', 'green'), colored('RED.', 'red'))
-        else:
-            print('No conflicts in config.')
+        if self.flag_count == 0:
+            print('No conflicts in config')
 
         return self.flag_count
