@@ -309,6 +309,8 @@ Config_\[survey\].ini is generated if `postProcessing=True` and `surveys` are pr
 
 `RGBImg`:  
 `bool`, If display rgb image created by 3 bands.  
+RGB composition by [HumVI](https://github.com/drphilmarshall/HumVI), please use with caution.  
+For better illustration, several parameters need to be adjusted in `galaxyEmulator.utils.convert_to_rgb`.  
 
 `RGBFilters`:  
 `str (3,)`, 3 bands to create rgb image.  
