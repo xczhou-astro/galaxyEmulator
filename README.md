@@ -141,9 +141,10 @@ Run SKIRT.
 
 ### PostProcessing
 ```Python
-postprocess = PostProcessing(properties, conf)
+postprocess = PostProcessing(properties, config)
 ```
 `properties`: `dict`: properties from `PreProcessing`.  
+`config`: `dict`: configurations.  
 ```Python
 postprocess.runPostProcess()
 ```
