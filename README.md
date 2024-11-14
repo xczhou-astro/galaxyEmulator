@@ -65,34 +65,34 @@ from galaxyEmulator.config import Configuration
 from galaxyEmulator.preprocess import PreProcess
 from galaxyEmulator.postprocess import PostProcess
 
-config = Configuration(surveys='CSST,JWST')
-conf = config.get_config()
+config = Configuration() # initialize Configuration class
+conf = config.get_config() # read config from current directory
 
-preprocess = PreProcess(conf)
-preprocess.get_subhalos()
-subhaloIDs = preprocess.get_subhaloIDs()
+preprocess = PreProcess(conf) # initialize PreProcess class
+preprocess.get_subhalos() # get subhalos 
+subhaloIDs = preprocess.get_subhaloIDs() # get subhaloIDs
 
 for ID in subhaloIDs:
-    preprocess.subhalo(subhaloID=ID)
-    preprocess.prepare()
+    preprocess.subhalo(subhaloID=ID) # get properties of subhalo
+    preprocess.prepare() # prepare for simulation
 
-    preprocess.runSKIRT()
+    preprocess.runSKIRT() # run SKIRT
 
-    postprocess = PostProcess(properties=preprocess.properties, conf)
-    postprocess.runPostProcess()
+    postprocess = PostProcess(properties=preprocess.properties, conf) # initialize PostProcess class
+    postprocess.runPostProcess() # run postprocessing
 ```  
 Or interactively run in ipython/jupyter specifying the subhaloIDs.
 
 ## Classes
 ### Configuration
 ```Python
-config = Configuration(main_config_file)
+config = Configuration(surveys=None)
 ```
-`main_config_file`: `str`, filename for config.ini  
+surveys: `str (N,)`, considered surveys. If None, configurations will be read from current directory, or configuration files will be created.  
 ```Python
 conf = config.get_config()
 ```  
-`conf`: `dict`, configurations including config.ini and config_\[survey\].ini
+`conf`: `dict`, return configurations.
 
 ### PreProcess
 ```Python

@@ -96,10 +96,18 @@ class Configuration:
         return config
     
     def get_config(self):
-        self.__modify_main_config()
-        self.config = self.__create_config()
-        self.save_config()
-        self.check_config()
+        if not os.path.exists('config.ini'):
+            self.__modify_main_config()
+            self.config = self.__create_config()
+            self.save_config()
+        else:
+            self.config = self.__read_config('config.ini')
+            for survey in split(self.config['surveys']):
+                if os.path.exists(f'config_{survey}.ini'):
+                    conf_survey = self.__read_config(f'config_{survey}.ini', insrument=survey)
+                    self.config = self.config | conf_survey
+            
+        self.check_config()      
         return self.config
     
     def init(self):
