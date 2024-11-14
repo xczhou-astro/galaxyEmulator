@@ -1,6 +1,5 @@
 import os
 import argparse
-import shutil
 from galaxyEmulator.utils import split
 from galaxyEmulator.config import Config
 
