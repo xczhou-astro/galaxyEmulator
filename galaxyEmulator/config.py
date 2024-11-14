@@ -5,7 +5,7 @@ from .utils import *
 
 class Configuration:
     
-    def __init__(self, surveys=None, dataDir='../Data'):
+    def __init__(self, surveys=None):
         
         if isinstance(surveys, list):
             surveys = ','.join(surveys)
@@ -15,6 +15,7 @@ class Configuration:
         else:
             self.surveys = None
         
+        dataDir = '../Data'
         if not os.path.exists('config.ini'):
             self.main_config_template = self.__read_config(os.path.join(dataDir, 'config/config_main.ini'))
         else:

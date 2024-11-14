@@ -44,16 +44,14 @@ Other packages:
 ## Usage
 ### Initialization
 ```Python
-python init.py -w=workspace
+python init.py --workspace=workspace --surveys=CSST,JWST
 ```
-config.ini will be created in workspace, edit this file and then:
-```
-python init.py -w=workspace
-```
+`config.ini`, `config_CSST.ini` and `config_JWST.ini` will be created in `workspace` directory. Please freely edit them as wish.  
 
-config_\[survey\].ini will be created if `postprocessing` is True and considered `surveys` are given in config.ini.  
+if `surveys` are not specified, only data cube files will be saved, and postprocessing will not be performed.  
 
-The two initialization steps are for simultaneously considering different surveys, as their instrumental parameters differ.  
+Note:  
+Currently, we only upload throughputs and PSFs for CSST, and other surveys will be added later. (Nov. 14, 2024)  
 
 ### Run
 Enter workspace, and create a python file named emulator.py
@@ -67,7 +65,7 @@ from galaxyEmulator.config import Configuration
 from galaxyEmulator.preprocess import PreProcess
 from galaxyEmulator.postprocess import PostProcess
 
-config = Configuration('config.ini')
+config = Configuration(surveys='CSST,JWST')
 conf = config.get_config()
 
 preprocess = PreProcess(conf)
@@ -83,7 +81,7 @@ for ID in subhaloIDs:
     postprocess = PostProcess(properties=preprocess.properties, conf)
     postprocess.runPostProcess()
 ```  
-Or interactively run in ipython/jupyter specifying the subhaloIDs 
+Or interactively run in ipython/jupyter specifying the subhaloIDs.
 
 ## Classes
 ### Configuration
