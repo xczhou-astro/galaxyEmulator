@@ -369,7 +369,7 @@ class PostProcess:
                             self.__plot_image(RGBImg, res, savedFilename=savedFilename)
                     
                     else:
-                        displayFilter = self.config[f'displayFilters_{survey}']
+                        displayFilter = self.config[f'displayFilter_{survey}']
                         filteridx = filters.index(displayFilter)
                         res = self.properties[f'resolution_{survey}'][filteridx]
                     
