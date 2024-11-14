@@ -20,7 +20,7 @@ class Configuration:
         else:
             self.main_config_template = self.__read_config('config.ini')
         
-        self.survey_config_template = self.__read_config(os.path.join(dataDir, '/config/config_survey.ini'))
+        self.survey_config_template = self.__read_config(os.path.join(dataDir, 'config/config_survey.ini'))
 
         self.flag_count = 0
             
@@ -101,10 +101,10 @@ class Configuration:
         self.check_config()
         return self.config
     
-    def init(self, saveDir):
+    def init(self):
         self.__modify_main_config()
         self.config = self.__create_config()
-        self.save_config(directory=saveDir)
+        self.save_config()
         self.check_config()
         
     def save_config(self, directory='.'):

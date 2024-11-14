@@ -1,7 +1,7 @@
 import os
 import argparse
 from galaxyEmulator.utils import split
-from galaxyEmulator.config import Config
+from galaxyEmulator.config import Configuration
 
 parser = argparse.ArgumentParser()
 
@@ -15,7 +15,9 @@ surveys = args.surveys
 
 os.makedirs(f'{workspace}',exist_ok=True)
 
-configuration = Config(surveys=surveys, dataDir='Data')
-conf = configuration.init(workspace)
+os.chdir(f'{workspace}')
+
+configuration = Configuration(surveys=surveys)
+conf = configuration.init()
 
 print(f'Configuration files are created in {workspace}. Please edit them!')
