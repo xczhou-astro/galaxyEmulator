@@ -94,12 +94,18 @@ class Configuration:
             
         return config
     
-    def get_config(self, saveDir=None):
+    def get_config(self):
         self.__modify_main_config()
         self.config = self.__create_config()
-        self.save_config(saveDir)
+        self.save_config()
         self.check_config()
         return self.config
+    
+    def init(self, saveDir):
+        self.__modify_main_config()
+        self.config = self.__create_config()
+        self.save_config(directory=saveDir)
+        self.check_config()
         
     def save_config(self, directory='.'):
         keys = list(self.config.keys())
