@@ -1,4 +1,5 @@
 import os
+import sys
 from termcolor import colored
 import numpy as np
 from .utils import *
@@ -101,13 +102,20 @@ class Configuration:
             self.config = self.__create_config()
             self.save_config()
         else:
+            self.__modify_main_config()
             self.config = self.__read_config('config.ini')
             for survey in split(self.config['surveys']):
                 if os.path.exists(f'config_{survey}.ini'):
                     conf_survey = self.__read_config(f'config_{survey}.ini', insrument=survey)
-                    self.config = self.config | conf_survey
+                else:
+                    conf_survey = self.__create_survey_config(survey)
+                    self.__save_survey_config(conf_survey, survey)
+                    
+                self.config = self.config | conf_survey
             
-        self.check_config()      
+        flags = self.check_config()
+        if flags > 0:
+            sys.exit() 
         return self.config
     
     def init(self):
@@ -134,6 +142,16 @@ class Configuration:
             for key in keys:
                 f.write(key + ' = ' + str(self.config[key]))
                 f.write('\n')
+    
+    def __save_survey_config(self, conf_survey, survey):
+        keys_survey = [key for key in conf_survey.keys() if survey in key]
+        filename = f'config_{survey}.ini'
+        with open(filename, 'w') as f:
+            for key in keys_survey:
+                key_strip = key.strip(f'_{survey}')
+                f.write(key_strip + ' = ' + str(conf_survey[key]))
+                f.write('\n')
+        
 
     def __issue(self, message):
         print(colored(message, 'red'))

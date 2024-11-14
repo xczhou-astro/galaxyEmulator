@@ -92,7 +92,19 @@ surveys: `str (N,)`, considered surveys. If None, configurations will be read fr
 ```Python
 conf = config.get_config()
 ```  
-`conf`: `dict`, return configurations.
+return configurations.  
+```
+config.add_survey(surveys)
+```
+surveys: `str (N,)`, new surveys to be added. Call get_config() to update configurations.  
+```
+config.save_config()
+```
+manually save configurations to `config.ini`.  
+```
+config.check_config()
+```
+manually check configurations.  
 
 ### PreProcess
 ```Python
