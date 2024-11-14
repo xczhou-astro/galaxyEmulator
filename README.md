@@ -79,7 +79,7 @@ for ID in subhaloIDs:
     preprocess.runSKIRT() # run SKIRT
 
     postprocess = PostProcess(properties=preprocess.properties, config=conf) # initialize PostProcess class
-    postprocess.runPostProcess() # run postprocessing
+    postprocess.runPostprocess() # run postprocessing
 ```  
 Or interactively run in ipython/jupyter specifying the subhaloIDs.
 
