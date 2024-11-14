@@ -94,10 +94,10 @@ class Configuration:
             
         return config
     
-    def get_config(self):
+    def get_config(self, saveDir=None):
         self.__modify_main_config()
         self.config = self.__create_config()
-        self.save_config()
+        self.save_config(saveDir)
         self.check_config()
         return self.config
         
