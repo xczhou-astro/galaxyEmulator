@@ -13,7 +13,7 @@ class Galaxy:
     def __init__(self, position, smoothLength, mass, subhaloPos, a, h):
         self.pos = position * a / h - subhaloPos # kpc
         self.smoothLength = smoothLength * a / h # kpc
-        self.mass = mass * 10**10 # Msun
+        self.mass = mass * 10**10 / h # Msun
         
 
 class PreProcess:
@@ -47,7 +47,7 @@ class PreProcess:
             maxStellarMass = np.float32(self.config['maxStellarMass'])
         
         snap_subhalos = self.__read_subhalos()
-        stellarMass = snap_subhalos['SubhaloMassType'][:, 4] / self.h # 1e10 Msun
+        stellarMass = snap_subhalos['SubhaloMassType'][:, 4] / self.h # 1e10 Msun/h to 1e10 Msun
 
         subhalo_indices = np.where((stellarMass > minStellarMass) \
                                     & (stellarMass < maxStellarMass) \
@@ -58,7 +58,7 @@ class PreProcess:
         halfMassRad = snap_subhalos['SubhaloHalfmassRadType'][:, 4] * self.a / self.h # kpc
         self.halfMassRadii = halfMassRad[self.subhaloIDs]
         self.subhaloNum = self.subhaloIDs.shape[0]
-        subhaloPos = snap_subhalos['SubhaloPos'] * self.a / self.h
+        subhaloPos = snap_subhalos['SubhaloPos'] * self.a / self.h # in kpc
         self.subhaloPos = subhaloPos[self.subhaloIDs]
 
         print(f'{self.subhaloNum} subhalos in snapshot {self.snapnum} in stellar mass from {minStellarMass} to {maxStellarMass} [10^10 M_sun]')
@@ -99,9 +99,12 @@ class PreProcess:
         
         ckdtree = cKDTree(starPart['Coordinates'])
         k = 33
-        distances, _ = ckdtree.query(starPart['Coordinates'], k=k)
+        distances, _ = ckdtree.query(starPart['Coordinates'], k=k) # in ckpc/h
         distances_to_32nd_neighbor = distances[:, 32]
         starPart['smoothLength'] = distances_to_32nd_neighbor
+        
+        max_smooth_length = 0.8 / self.a * self.h # kpc to ckpc/h
+        starPart['smoothLength'][starPart['smoothLength'] > max_smooth_length] = max_smooth_length
         
         mask = np.where(starPart['GFM_StellarFormationTime'] > 0)[0]
         for key in starPart.keys():
@@ -123,7 +126,7 @@ class PreProcess:
                     & (np.abs(g.pos[:, 2]) < region)\
                     & (starPart['age'] < ageThreshold))[0]
         size = mask.shape[0]
-        print('Star-forming star particles:', size)
+        print('MAPPING III particles:', size)
 
         part['x'] = g.pos[:, 0][mask] # in kpc
         part['y'] = g.pos[:, 1][mask]
@@ -131,12 +134,13 @@ class PreProcess:
         part['smoothLength'] = g.smoothLength[mask] # smoothing length in kpc
         part['sfr'] = g.mass[mask] / (ageThreshold * 10**6) # constant SFR in Msun/yr
         part['Z'] = starPart['GFM_Metallicity'][mask]
-        # res['compactness'] = np.array([10**np.float32(config['logCompactness'])] * size) 
-        part['compactness'] = np.array([np.float32(self.config['logCompactness'])] * size)
+        part['compactness'] = np.random.normal(loc=np.float32(self.config['compactnessMean']), 
+                                               scale=np.float32(self.config['compactnessStd']), size=size) # from Kapoor et al. 2021
         pressure = (10**np.float32(self.config['logPressure']) * const.k_B) * (u.J * u.cm**-3).to(u.J * u.m**-3) # J * m**3 == Pa
         pressure = pressure.value
-        part['pressure'] = np.array([pressure] * size) 
-        part['covering'] = np.array([np.float32(self.config['coveringFactor'])] * size)
+        part['pressure'] = np.array([pressure] * size)
+        age = starPart['age'][mask] # in Myr
+        part['covering'] = np.array(np.exp(-age / np.float32(self.config['PDRClearingTimescale']))) # from Baes, M., et al. 2024
 
         header = 'star forming particles\n' \
                 + '\n' \
@@ -163,7 +167,7 @@ class PreProcess:
                         & (np.abs(g.pos[:, 2]) < region)\
                         & (starPart['age'] > ageThreshold))[0]
         size = mask.shape[0]
-        print('Quenched star particles:', size)
+        print('BC03 particles:', size)
         part['x'] = g.pos[:, 0][mask] # in kpc
         part['y'] = g.pos[:, 1][mask] # in kpc
         part['z'] = g.pos[:, 2][mask] # in kpc
@@ -191,7 +195,8 @@ class PreProcess:
         if self.config['includeDust']:
             try:
                 fields = ['GFM_Metallicity', 'Coordinates', 'Masses',
-                        'InternalEnergy', 'StarFormationRate', 'ElectronAbundance']
+                        'InternalEnergy', 'StarFormationRate', 'ElectronAbundance', 
+                        'Density']
                 gasPart = ill.snapshot.loadSubhalo(self.config['filePath'], 
                         self.snapnum, self.id, 'gas', fields)
                 ckdtree = cKDTree(gasPart['Coordinates'])
@@ -200,17 +205,34 @@ class PreProcess:
                 distances_to_32nd_neighbor = distances[:, 32]
                 gasPart['smoothLength'] = distances_to_32nd_neighbor
                 
+                max_smooth_length = 0.8 / self.a * self.h # kpc to ckpc/h
+                gasPart['smoothLength'][gasPart['smoothLength'] > max_smooth_length] = max_smooth_length
+                
                 gasPart['Temperature'] = u2temp(gasPart['InternalEnergy'], 
                                                 gasPart['ElectronAbundance'])
             
                 gas = Galaxy(gasPart['Coordinates'], gasPart['smoothLength'], gasPart['Masses'], 
                             self.pos, a=self.a, h=self.h)
-                mask = np.where((np.abs(gas.pos[:, 0]) < region)\
-                                & (np.abs(gas.pos[:, 1]) < region)\
-                                & (np.abs(gas.pos[:, 2]) < region)\
-                                & (gasPart['StarFormationRate'] > 0)\
-                                & (gasPart['Temperature'] < np.float32(self.config['temperatureThreshold'])))[0]
-                size = mask.shape[0]
+                
+                spatialmask = np.where((np.abs(gas.pos[:, 0]) < region)\
+                            & (np.abs(gas.pos[:, 1]) < region)\
+                            & (np.abs(gas.pos[:, 2]) < region))[0]
+                
+                if self.config['DISMModel'] == 'Camps_2016':
+        
+                    othermask = np.where(gasPart['StarFormationRate'] > 0) \
+                                    | (gasPart['Temperature'] < np.float32(self.config['temperatureThreshold']))[0]
+                    mask = np.intersect1d(spatialmask, othermask)
+                    size = mask.shape[0]
+                
+                elif self.config['DISMModel'] == 'Torrey_2012':
+                    
+                    density = gasPart['Density'] * ((10**10 * u.Msun / self.h) / (u.kpc / self.h * self.a)**3)
+                    density = density.to(10**10 * self.h**2 * u.Msun * u.kpc**-3)
+                    othermask = np.where(np.log10(gasPart['Temperature']) < (6 + 0.25 * np.log10(density.value)))[0]
+                    mask = np.intersect1d(spatialmask, othermask)
+                    size = mask.shape[0]
+                                         
                 print('Dust particles:', size)
                 part['x'] = gas.pos[:, 0][mask] # in kpc
                 part['y'] = gas.pos[:, 1][mask]
@@ -356,6 +378,7 @@ class PreProcess:
         maxWavelength = np.float32(self.config['maxWavelength'])
         data = data.replace('maxWavelength="1.2 micron"', f'maxWavelength="{maxWavelength} micron"')
 
+        data = data.replace('massFraction="0.3"', f'massFraction="{self.config["massFraction"]}')
         dustConfig = '<ZubkoDustMix numSilicateSizes="15" numGraphiteSizes="15" numPAHSizes="15"/>'
         dustModel = self.config['dustModel']
         numSilicateSizes = np.int32(self.config['numSilicateSizes'])

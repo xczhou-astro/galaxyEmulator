@@ -455,10 +455,18 @@ class Configuration:
 
         self.__exist('recordComponents')
         self.__exist('ageThreshold')
-        self.__exist('logCompactness')
+        self.__exist('logCompactnessMean')
+        self.__exist('logCompactnessStd')
+        self.__exist('massFraction')
+        self.__exist('PDRClearingTimescale')
         self.__exist('logPressure')
-        self.__exist('coveringFactor')
         self.__exist('temperatureThreshold')
+        DISMModel = self.__exist_return('DISMModel')
+        if DISMModel:
+            if (DISMModel != 'Camps_2016') & (DISMModel != 'Torrey_2012'):
+                self.__issue('DISMModel unrecognized.')
+                self.flag_count += 1
+        
         self.__exist('numSilicateSizes')
         self.__exist('numGraphiteSizes')
         self.__exist('numPAHSizes')
