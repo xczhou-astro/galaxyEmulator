@@ -28,13 +28,6 @@ class PreProcess:
         self.workingDir = self.config['workingDir']
         self.dataDir = self.config['dataDir']
 
-    # def __get_snapz(self):
-    #     tng = self.config['filePath'].split('/')[-1]
-    #     aux_filename = self.config['dataDir'] + '/auxiliary/' + tng + '.txt'
-    #     aux = np.loadtxt(aux_filename, skiprows=12, usecols=(0, 1, 2))
-    #     snapz = aux[:, 1][list(np.int32(aux[:, 0])).index(self.snapnum)]
-    #     return snapz
-
     def __get_snapz(self):
         snap = h5py.File(os.path.join(self.config['filePath'],
                                       f'snapdir_{self.snapnum:03d}/snap_{self.snapnum:03d}.0.hdf5'), 'r')
@@ -136,7 +129,7 @@ class PreProcess:
         part['y'] = g.pos[:, 1][mask]
         part['z'] = g.pos[:, 2][mask]
         part['smoothLength'] = g.smoothLength[mask] # smoothing length in kpc
-        part['sfr'] = g.mass[mask] / np.float32(eval(self.config['ratioSFR']))
+        part['sfr'] = g.mass[mask] / (ageThreshold * 10**6) # constant SFR in Msun/yr
         part['Z'] = starPart['GFM_Metallicity'][mask]
         # res['compactness'] = np.array([10**np.float32(config['logCompactness'])] * size) 
         part['compactness'] = np.array([np.float32(self.config['logCompactness'])] * size)

@@ -455,7 +455,6 @@ class Configuration:
 
         self.__exist('recordComponents')
         self.__exist('ageThreshold')
-        self.__exist('ratioSFR')
         self.__exist('logCompactness')
         self.__exist('logPressure')
         self.__exist('coveringFactor')

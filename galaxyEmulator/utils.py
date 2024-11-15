@@ -2,13 +2,9 @@ import numpy as np
 import astropy.units as u
 import astropy.constants as const
 from astropy.cosmology import Planck15
-# import matplotlib.pyplot as plt
 from PIL import Image
 import sys
 import os
-# from matplotlib_scalebar.scalebar import ScaleBar
-# from matplotlib_scalebar.dimension import _Dimension
-# from mpl_toolkits.axes_grid1 import make_axes_locatable
 import shutil
 
 def u2temp(u_energy, x_e):
