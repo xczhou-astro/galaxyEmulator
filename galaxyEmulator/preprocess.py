@@ -6,11 +6,13 @@ from astropy.cosmology import Planck15
 import astropy.units as u
 import subprocess
 from .utils import *
+from scipy.spatial import cKDTree
 
 class Galaxy:
 
-    def __init__(self, position, mass, subhaloPos, a, h):
+    def __init__(self, position, smoothLength, mass, subhaloPos, a, h):
         self.pos = position * a / h - subhaloPos # kpc
+        self.smoothLength = smoothLength * a / h # kpc
         self.mass = mass * 10**10 # Msun
         
 
@@ -101,6 +103,13 @@ class PreProcess:
         
         starPart = ill.snapshot.loadSubhalo(self.config['filePath'], self.snapnum,
                                             self.id, 'star', fields)
+        
+        ckdtree = cKDTree(starPart['Coordinates'])
+        k = 33
+        distances, _ = ckdtree.query(starPart['Coordinates'], k=k)
+        distances_to_32nd_neighbor = distances[:, 32]
+        starPart['smoothLength'] = distances_to_32nd_neighbor
+        
         mask = np.where(starPart['GFM_StellarFormationTime'] > 0)[0]
         for key in starPart.keys():
             if key == 'count':
@@ -109,7 +118,8 @@ class PreProcess:
                 starPart[key] = starPart[key][mask]
         
         starPart['age'] = fage(self.snapz) - fage(1/starPart['GFM_StellarFormationTime'] - 1) # in Myr
-        g = Galaxy(starPart['Coordinates'], starPart['GFM_InitialMass'], self.pos, a=self.a, h=self.h)
+        g = Galaxy(starPart['Coordinates'], starPart['smoothLength'], starPart['GFM_InitialMass'],
+                   self.pos, a=self.a, h=self.h)
 
 
         ageThreshold = np.float32(self.config['ageThreshold'])
@@ -125,7 +135,7 @@ class PreProcess:
         part['x'] = g.pos[:, 0][mask] # in kpc
         part['y'] = g.pos[:, 1][mask]
         part['z'] = g.pos[:, 2][mask]
-        part['smoothLength'] = np.array([0.74] * size) # softening length from TNG website
+        part['smoothLength'] = g.smoothLength[mask] # smoothing length in kpc
         part['sfr'] = g.mass[mask] / np.float32(eval(self.config['ratioSFR']))
         part['Z'] = starPart['GFM_Metallicity'][mask]
         # res['compactness'] = np.array([10**np.float32(config['logCompactness'])] * size) 
@@ -164,7 +174,7 @@ class PreProcess:
         part['x'] = g.pos[:, 0][mask] # in kpc
         part['y'] = g.pos[:, 1][mask] # in kpc
         part['z'] = g.pos[:, 2][mask] # in kpc
-        part['smoothLength'] = np.array([0.74] * size) # in kpc (need investigation)
+        part['smoothLength'] = g.smoothLength[mask] # smoothing length in kpc
         part['initialMass'] = g.mass[mask]
         part['Z'] = starPart['GFM_Metallicity'][mask]
         part['age'] = starPart['age'][mask]
@@ -191,10 +201,16 @@ class PreProcess:
                         'InternalEnergy', 'StarFormationRate', 'ElectronAbundance']
                 gasPart = ill.snapshot.loadSubhalo(self.config['filePath'], 
                         self.snapnum, self.id, 'gas', fields)
+                ckdtree = cKDTree(gasPart['Coordinates'])
+                k = 33
+                distances, _ = ckdtree.query(gasPart['Coordinates'], k=k)
+                distances_to_32nd_neighbor = distances[:, 32]
+                gasPart['smoothLength'] = distances_to_32nd_neighbor
+                
                 gasPart['Temperature'] = u2temp(gasPart['InternalEnergy'], 
                                                 gasPart['ElectronAbundance'])
             
-                gas = Galaxy(gasPart['Coordinates'], gasPart['Masses'], 
+                gas = Galaxy(gasPart['Coordinates'], gasPart['smoothLength'], gasPart['Masses'], 
                             self.pos, a=self.a, h=self.h)
                 mask = np.where((np.abs(gas.pos[:, 0]) < region)\
                                 & (np.abs(gas.pos[:, 1]) < region)\
@@ -206,7 +222,7 @@ class PreProcess:
                 part['x'] = gas.pos[:, 0][mask] # in kpc
                 part['y'] = gas.pos[:, 1][mask]
                 part['z'] = gas.pos[:, 2][mask]
-                part['smoothLength'] = np.array([0.18] * size)
+                part['smoothLength'] = gas.smoothLength[mask]
                 part['mass'] = gas.mass[mask]
                 part['Z'] = gasPart['GFM_Metallicity'][mask]
             except:
