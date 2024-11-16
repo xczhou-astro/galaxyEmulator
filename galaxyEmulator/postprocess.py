@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib_scalebar.scalebar import ScaleBar
 from matplotlib_scalebar.dimension import _Dimension
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from photutils.segmentation import make_2dgaussian_kernel
 
 class ParsecDimension(_Dimension):
     def __init__(self):
@@ -70,7 +71,7 @@ class PostProcess:
                 psf_file = os.path.join(psfDir, filename)
                 
                 psf = self.__load_method(os.path.splitext(psf_file)[1])(psf_file)
-                if psf.shape[0] % 2 == 0:
+                if psf.shape[0] % 2 == 0: # make sure the size is odd
                     psf = np.pad(psf, ((0, 1), (0, 1)), 'constant')
                 psf = psf / np.sum(psf)
                 PSFs.append(psf)
@@ -82,12 +83,14 @@ class PostProcess:
             
             pixelScales = self.properties[f'angleRes_{survey}']
 
-            x_stds = [fwhm / ps for fwhm, ps in zip(fwhm_in_arcsec, pixelScales)]
-            psfmodel = {'Moffat': Moffat2DKernel, 'Gaussian': Gaussian2DKernel}
-            psfmodel = psfmodel[self.config[f'PSFModel_{survey}']]
+            stds = [fwhm / ps for fwhm, ps in zip(fwhm_in_arcsec, pixelScales)]
+            
             PSFs = []
-            for xstd in x_stds:
-                kernel = psfmodel(xstd)
+            for std in stds:
+                size = std * 10
+                if std % 2 == 0: # make sure the size is odd
+                    size += 1
+                kernel = make_2dgaussian_kernel(std, size)
                 PSFs.append(kernel)
             
         return PSFs

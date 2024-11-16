@@ -362,10 +362,10 @@ class Configuration:
                                     PSFFWHM = self.__exist_return(f'PSFFWHM_{survey}')
                                     if PSFFWHM:
                                         self.__match(f'filters_{survey}', f'PSFFWHM_{survey}', True)
-                                        PSFModel = self.__exist_return(f'PSFModel_{survey}')
-                                        if (PSFModel != 'Moffat') & (PSFModel != 'Gaussian'):
-                                            self.__issue('PSFModel unrecognized.')
-                                            self.flag_count += 1
+                                        # PSFModel = self.__exist_return(f'PSFModel_{survey}')
+                                        # if (PSFModel != 'Moffat') & (PSFModel != 'Gaussian'):
+                                        #     self.__issue('PSFModel unrecognized.')
+                                        #     self.flag_count += 1
 
 
                                 else:
