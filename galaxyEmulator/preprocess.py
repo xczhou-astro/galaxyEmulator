@@ -493,8 +493,3 @@ class PreProcess:
     
     def get_properties(self):
         return self.properties
-
-    # def runSKIRT(self):
-    #     self.__get_particles()
-    #     self.__create_ski()
-    #     self.__run_skirt()
