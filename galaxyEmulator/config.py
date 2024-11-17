@@ -1,47 +1,67 @@
 import os
-import sys
 from termcolor import colored
 import numpy as np
 from .utils import *
+from pathlib import Path
 
 class Configuration:
-    
+
     def __init__(self, surveys=None):
-        
-        if isinstance(surveys, list):
-            surveys = ','.join(surveys)
-            
         if surveys is not None:
-            self.surveys = split(surveys)
+            if isinstance(surveys, str):
+                self.surveys = split(surveys)
+            else:
+                self.surveys = surveys
         else:
-            self.surveys = None
+            self.surveys = []
         
         dataDir = '../Data'
-        if not os.path.exists('config.ini'):
-            self.main_config_template = self.__read_config(os.path.join(dataDir, 'config/config_main.ini'))
-        else:
-            self.main_config_template = self.__read_config('config.ini')
+        self.main_config_template = self.__read_config(
+            os.path.join(dataDir, 'config/config_main.ini')
+        )
+        self.survey_config_template = self.__read_config(
+            os.path.join(dataDir,'config/config_survey.ini')
+        )
         
-        self.survey_config_template = self.__read_config(os.path.join(dataDir, 'config/config_survey.ini'))
+        # self.flag_count = 0
 
-        self.flag_count = 0
-            
-    def __to_string(self, attr):
-        if isinstance(attr, list):
-            attr = ','.join(attr)
-        else:
-            attr = attr
+    def __load_config(self):
+        self.config = self.__read_config('config.ini')
+        config_survey_path = Path('.')
+        config_survey_files = list(config_survey_path.glob('config_*.ini'))
+        detected_surveys = [
+            file.name.split('_')[1].split('.')[0] for file in config_survey_files
+        ]
+
+        for survey in detected_surveys:
+            if survey not in self.surveys:
+                self.add_survey(survey)
+            config_survey = self.__read_config(f'config_{survey}.ini', survey)
+
+            self.config = self.config | config_survey
         
-        return attr
-    
+        self.__modify_main_config()
+
     def add_survey(self, surveys):
-        surveys_add = split(self.__to_string(surveys))
-        if self.surveys is None:
-            self.surveys = surveys_add
+
+        if surveys is not None:
+            if isinstance(surveys, str):
+                surveys_add = split(surveys)
+            else:
+                surveys_add = surveys
         else:
-            self.surveys += surveys_add
-            
-    def __read_config(self, file, insrument=None):
+            surveys_add = []
+
+        added_surveys = []
+        for survey in surveys_add:
+            if survey in self.surveys:
+                print(f'{survey} already exists.')
+            else:
+                added_surveys.append(survey)
+
+        self.surveys += added_surveys
+
+    def  __read_config(self, file, insrument=None):
         if insrument is not None:
             suffix = f'_{insrument}'
         else:
@@ -69,61 +89,72 @@ class Configuration:
         return config
     
     def __modify_main_config(self):
-        if self.surveys is not None:
-            self.main_config_template['postProcessing'] = True
-            self.main_config_template['surveys'] = ','.join(self.surveys)
+        if len(self.surveys) == 0:
+            self.config['postProcessing'] = 'False'
+            self.config['surveys'] = ''
         else:
-            self.main_config_template['postProcessing'] = False
-            self.main_config_template['surveys'] = ''
-    
+            self.config['postProcessing'] = 'True'
+            self.config['surveys'] = ','.join(self.surveys)
+
+    def __save_main_config(self, main_config):
+        keys = list(main_config.keys())
+        with open('config.ini', 'w') as f:
+            for key in keys:
+                f.write(f'{key} = {main_config[key]}')
+                f.write('\n')
+
     def __create_survey_config(self, survey):
         survey_config = {}
-        for key, value in self.survey_config_template.items():
-            survey_config[key + f'_{survey}'] = value
+        for key, val in self.survey_config_template.items():
+            survey_config[key + f'_{survey}'] = val
         return survey_config
     
-    def __create_config(self):
-        if self.surveys is not None:
-            config = self.main_config_template
-            for survey in self.surveys:
-                if not os.path.exists(f'config_{survey}.ini'):
-                    survey_config = self.__create_survey_config(survey)
-                else:
-                    survey_config = self.__read_config(f'config_{survey}.ini', insrument=survey)
-                config = config | survey_config
+    def __save_survey_config(self, survey_config, survey):
+        keys = list(survey_config.keys())
+        with open(f'config_{survey}.ini', 'w') as f:
+            for key in keys:
+                key_strip = key.split(f'_{survey}')[0]
+                f.write(f'{key_strip} = {survey_config[key]}')
+                f.write('\n')
+ 
+    def __update_config(self):
+        if len(self.surveys) == 0:
+            if os.path.exists('config.ini'):
+                self.__load_config()
+                # self.__modify_main_config()
+            else:
+                self.config = self.main_config_template
+                self.__modify_main_config()
+                self.__save_main_config(self.config)
         else:
-            config = self.main_config_template
+            if os.path.exists('config.ini'):
+                self.__load_config() # self.surveys will be updated
+                for survey in self.surveys:
+                    if not os.path.exists(f'config_{survey}.ini'):
+                        survey_config = self.__create_survey_config(survey)
+                        self.__save_survey_config(survey_config, survey)
+                        self.config = self.config | survey_config
             
-        return config
+            else:
+                self.config = self.main_config_template
+                self.__modify_main_config()
+                self.__save_main_config(self.config)
+                for survey in self.surveys:
+                    survey_config = self.__create_survey_config(survey)
+                    self.__save_survey_config(survey_config, survey)
+                    self.config = self.config | survey_config
     
     def get_config(self):
-        if not os.path.exists('config.ini'):
-            self.__modify_main_config()
-            self.config = self.__create_config()
-            self.save_config()
-        else:
-            self.__modify_main_config()
-            self.config = self.__read_config('config.ini')
-            for survey in split(self.config['surveys']):
-                if os.path.exists(f'config_{survey}.ini'):
-                    conf_survey = self.__read_config(f'config_{survey}.ini', insrument=survey)
-                else:
-                    conf_survey = self.__create_survey_config(survey)
-                    self.__save_survey_config(conf_survey, survey)
-                    
-                self.config = self.config | conf_survey
-            
+        self.__update_config()
+        
         flags = self.check_config()
-        if flags > 0:
-            sys.exit() 
         return self.config
     
     def init(self):
-        self.__modify_main_config()
-        self.config = self.__create_config()
+        self.__update_config()
+        flags = self.check_config()
         self.save_config()
-        self.check_config()
-        
+    
     def save_config(self, directory='.'):
         keys = list(self.config.keys())
         if self.surveys is not None:
@@ -142,16 +173,6 @@ class Configuration:
             for key in keys:
                 f.write(key + ' = ' + str(self.config[key]))
                 f.write('\n')
-    
-    def __save_survey_config(self, conf_survey, survey):
-        keys_survey = [key for key in conf_survey.keys() if survey in key]
-        filename = f'config_{survey}.ini'
-        with open(filename, 'w') as f:
-            for key in keys_survey:
-                key_strip = key.strip(f'_{survey}')
-                f.write(key_strip + ' = ' + str(conf_survey[key]))
-                f.write('\n')
-        
 
     def __issue(self, message):
         print(colored(message, 'red'))
@@ -213,6 +234,8 @@ class Configuration:
             return True
 
     def check_config(self):
+
+        self.flag_count = 0
 
         print(colored('Conflicts in config are indicated in', 'green'), colored('RED.', 'red'))
 
@@ -474,5 +497,7 @@ class Configuration:
 
         if self.flag_count == 0:
             print('No conflicts in config')
+        
+        self.config['flags'] = self.flag_count
 
         return self.flag_count

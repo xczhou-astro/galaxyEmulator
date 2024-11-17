@@ -7,6 +7,7 @@ import astropy.units as u
 import subprocess
 from .utils import *
 from scipy.spatial import cKDTree
+import sys
 
 class Galaxy:
 
@@ -20,6 +21,10 @@ class PreProcess:
     
     def __init__(self, config):
         self.config = config
+        if self.config['flags'] > 0:
+            print('Conflictions in configuration. Please edit them !')
+            sys.exit()
+        
         self.snapnum = np.int32(self.config['snapNum'])
         self.cosmology = Planck15
         self.snapz = self.__get_snapz()
