@@ -44,7 +44,7 @@ Other packages:
 ## Usage
 ### Initialization
 ```Python
-python init.py --workspace=workspace --surveys=CSST,JWST
+python init.py --workspace=workspace --surveys="CSST,JWST"
 ```
 `config.ini`, `config_CSST.ini` and `config_JWST.ini` will be created in `workspace` directory. Please freely edit them as wish.  
 
@@ -247,20 +247,23 @@ Run postprocessing for subhalo obtained before.
 `ageThreshold`:  
 `float`, Age threshold for discriminating star-forming and quenched star particles, in Myr.  
 
-`ratioSFR`:  
-`float`, SFR = mass / `ratioSFR` for star-forming particles.  
-
-`logCompactness`:  
-`float`, Compactness = 10^`logCompactness` for star-forming particles.  
+`logCompactnessMean`, `logCompactnessStd`:  
+`float`,  logCompactness for star-forming particles, sampled from normal distribution.  
 
 `logPressure`:  
 `float`, log10[(Pressure/k_B)/cm^-3 K] = `logPressure` for star-forming particles.  
 
-`coveringFactor`:  
-`float`, Covering factor for star-forming particles.  
+`PDRClearingTimescale`:  
+`float`, covering factor is f = e^(-t / PDRClearingTimescale), where t is the age.  
 
 `temperatureThreshold`:  
 `float`, Gas particles lower than `temperatureThreshold` will be considered as dusts.  
+
+`massFraction`:  
+`float`, Fraction of the metallic gas locked up in dust.  
+
+`DISMModel`:  
+`str`, `Camps_2016` or `Torrey_2012`, dust-containing ISM (DISM) model.  
 
 `numSilicateSizes`, `numGraphiteSizes`, `numPAHSizes`, `numHydrocarbonSizes`:  
 `int`, Number of bins for dust grains.  
@@ -296,7 +299,7 @@ Config_\[survey\].ini is generated if `postProcessing=True` and `surveys` are pr
 `bool`, If PSFs are from files; pixel scales of PSF array must be consistent with `pixelScales`.  
 
 `PSFFWHM`:  
-`float (N,)` or `float (1,)`, FWHM of PSFs in Moffat model.  
+`float (N,)` or `float (1,)`, FWHM to create Gaussian PSF kernels, in arcsec.  
 
 `includeBkg`:
 `bool`, If include background; can be True if `resolFromPix=True`, otherwise must be False.  
