@@ -3,10 +3,15 @@ import argparse
 from galaxyEmulator.utils import split
 from galaxyEmulator.config import Configuration
 
+def none(value):
+    if value == 'None':
+        return None
+    return value
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-w', '--workspace', type=str, default='workspace')
-parser.add_argument('-s', '--surveys', type=str, default='None')
+parser.add_argument('-s', '--surveys', type=none, default='None')
 
 args = parser.parse_args()
 
