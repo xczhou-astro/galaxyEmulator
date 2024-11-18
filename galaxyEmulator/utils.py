@@ -6,6 +6,7 @@ from PIL import Image
 import sys
 import os
 import shutil
+import logging
 
 def u2temp(u_energy, x_e):
     '''
@@ -224,3 +225,55 @@ def extend(values, nums):
         values
     
     return values
+
+class PrintLogger:
+    """
+    A file-like class that redirects print statements to a logger.
+    """
+    def __init__(self, logger, level):
+        self.logger = logger
+        self.level = level
+
+    def write(self, message):
+        if message.strip():  # Ignore empty lines
+            self.logger.log(self.level, message.strip())
+
+    def flush(self):
+        pass  # Needed for compatibility with `sys.stdout` and `sys.stderr`
+
+def get_logger(name, log_file="run.logs"):
+    """
+    Creates and configures a logger, and redirects print statements to it.
+
+    Parameters:
+        name (str): Name of the logger.
+        log_file (str): File to write the logs.
+
+    Returns:
+        logging.Logger: Configured logger.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    # Avoid duplicate handlers if the logger is reused
+    if not logger.handlers:
+        # File handler to write logs to file
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+        # Simplified formatter: message only
+        file_handler.setFormatter(logging.Formatter("%(message)s"))
+
+        # Console handler to print logs
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(logging.Formatter("%(message)s"))
+
+        # Add handlers to the logger
+        logger.addHandler(file_handler)
+        logger.addHandler(console_handler)
+
+        # Redirect stdout and stderr to the logger
+        sys.stdout = PrintLogger(logger, logging.INFO)
+        sys.stderr = PrintLogger(logger, logging.ERROR)
+
+    return logger
