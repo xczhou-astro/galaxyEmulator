@@ -32,6 +32,8 @@ class PreProcess:
         self.a = 1 / (1 + self.snapz)
         self.workingDir = self.config['workingDir']
         self.dataDir = self.config['dataDir']
+        
+        logger = get_logger('logger', log_file="log.txt")
 
     def __get_snapz(self):
         snap = h5py.File(os.path.join(self.config['filePath'],
