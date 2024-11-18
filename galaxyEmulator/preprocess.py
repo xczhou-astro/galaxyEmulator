@@ -141,8 +141,8 @@ class PreProcess:
         part['smoothLength'] = g.smoothLength[mask] # smoothing length in kpc
         part['sfr'] = g.mass[mask] / (ageThreshold * 10**6) # constant SFR in Msun/yr
         part['Z'] = starPart['GFM_Metallicity'][mask]
-        part['compactness'] = np.random.normal(loc=np.float32(self.config['compactnessMean']), 
-                                               scale=np.float32(self.config['compactnessStd']), size=size) # from Kapoor et al. 2021
+        part['compactness'] = np.random.normal(loc=np.float32(self.config['logCompactnessMean']), 
+                                               scale=np.float32(self.config['logCompactnessStd']), size=size) # from Kapoor et al. 2021
         pressure = (10**np.float32(self.config['logPressure']) * const.k_B) * (u.J * u.cm**-3).to(u.J * u.m**-3) # J * m**3 == Pa
         pressure = pressure.value
         part['pressure'] = np.array([pressure] * size)
