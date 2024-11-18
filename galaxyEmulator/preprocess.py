@@ -385,7 +385,8 @@ class PreProcess:
         maxWavelength = np.float32(self.config['maxWavelength'])
         data = data.replace('maxWavelength="1.2 micron"', f'maxWavelength="{maxWavelength} micron"')
 
-        data = data.replace('massFraction="0.3"', f'massFraction="{self.config["massFraction"]}')
+        massFraction = np.float32(self.config['massFraction'])
+        data = data.replace('massFraction="0.3"', f'massFraction="{massFraction}"')
         dustConfig = '<ZubkoDustMix numSilicateSizes="15" numGraphiteSizes="15" numPAHSizes="15"/>'
         dustModel = self.config['dustModel']
         numSilicateSizes = np.int32(self.config['numSilicateSizes'])
