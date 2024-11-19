@@ -33,7 +33,7 @@ class PreProcess:
         self.workingDir = self.config['workingDir']
         self.dataDir = self.config['dataDir']
         
-        logger = get_logger('logger', log_file="log.txt")
+        # logger = get_logger('logger', log_file="log.txt")
 
     def __get_snapz(self):
         snap = h5py.File(os.path.join(self.config['filePath'],
@@ -495,6 +495,10 @@ class PreProcess:
         command = f'skirt -t {numThreads} skirt.ski'
         process = subprocess.Popen(command, shell=True)
         flag = process.wait()
+
+        if flag != 0:
+            print('SKIRT exited with error.')
+            sys.exit()
 
         os.chdir(base)
         return flag

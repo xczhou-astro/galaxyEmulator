@@ -313,8 +313,34 @@ class PostProcess:
             plt.close()
         else:
             plt.show()
+        
+    def __show_images(self, imgFilenames, SEDFilenames, 
+                      subhaloID):
+        
+        for i, (imgname, sedname) in enumerate(zip(imgFilenames, SEDFilenames)):
+            img = Image.open(imgname)
+            sed = Image.open(sedname)
 
-    def runPostprocess(self):
+            w_img, h_img = img.size
+            w_sed, h_sed = sed.size
+
+            combined_width = w_img + w_sed
+            combined_height = max(h_img, h_sed)
+
+            combined_img = Image.new('RGB', (combined_width, combined_height))
+
+            combined_img.paste(img, (0, 0))
+            combined_img.paste(sed, (w_img, 0))
+
+            fig, ax = plt.subplots()
+            ax.axis('off')
+            plt.imshow(combined_img)
+            plt.suptitle(f'SubhaloID: {subhaloID} (View {i:02d})', 
+                         fontsize=12, y=0.7)
+            plt.show()
+
+
+    def runPostprocess(self, showImages=False):
         
         print('Run Postprocessing')
 
@@ -381,13 +407,22 @@ class PostProcess:
                             savedFilename = f'mock_{survey}/Subhalo_{self.subhaloID}/galaxy_view_{i:02d}.png'
                             self.__plot_image(img, res, savedFilename=savedFilename)
 
-                sed = np.loadtxt(sedFilenames[0])
-                savedFilename = f'mock_{survey}/Subhalo_{self.subhaloID}/galaxy_SED.png'
+                    for i in range(self.properties['numViews']):
+                        
+                        sed = np.loadtxt(sedFilenames[i])
+                        savedFilename = f'mock_{survey}/Subhalo_{self.subhaloID}/galaxy_SED_view_{i:02d}.png'
 
-                logscale = self.config['displaySEDxlogscale']
-                # print(logscale)
-                self.__plot_sed(sed, logscale=logscale,
-                              savedFilename=savedFilename)
+                        logscale = self.config['displaySEDxlogscale']
+                        # print(logscale)
+                        self.__plot_sed(sed, logscale=logscale,
+                                    savedFilename=savedFilename)
+                
+                if showImages:
+                    imgFilenames = [f'mock_{survey}/Subhalo_{self.subhaloID}/galaxy_view_{i:02d}.png' 
+                                    for i in range(self.properties['numViews'])]
+                    sedFilenames = [f'mock_{survey}/Subhalo_{self.subhaloID}/galaxy_SED_view_{i:02d}.png' 
+                                    for i in range(self.properties['numViews'])]
+                    self.__show_images(imgFilenames, sedFilenames, self.subhaloID)
                 
             if self.config['saveDataCube']:
                 self.__saveDataCube()
