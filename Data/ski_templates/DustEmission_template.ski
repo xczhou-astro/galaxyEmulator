@@ -9,7 +9,7 @@
             <ExtragalacticUnits wavelengthOutputStyle="Wavelength" fluxOutputStyle="Frequency"/>
         </units>
         <cosmology type="Cosmology">
-            <FlatUniverseCosmology redshift="0.08" reducedHubbleConstant="0.6774" matterDensityFraction="0.3075"/>
+            <FlatUniverseCosmology redshift="0.008" reducedHubbleConstant="0.6774" matterDensityFraction="0.3075"/>
         </cosmology>
         <sourceSystem type="SourceSystem">
             <SourceSystem minWavelength="0.01 micron" maxWavelength="1.2 micron" wavelengths="0.55 micron" sourceBias="0.5">
