@@ -131,7 +131,7 @@ return stellar masses for subhalos obtained in `get_subhalos()`.
 ```Python
 preprocess.subhalo(subhaloID)
 ```
-`subhaloID`: `int`: Intialize subhalo with subhaloID.  
+`subhaloID`: `int`: Intialize simulation for subhalo with subhaloID.  
 ```Python
 preprocess.prepare()
 ```
@@ -185,7 +185,7 @@ Run postprocessing for subhalo obtained before.
 `float`, Determine the boxsize to retrieve particles;  
 
 `maxBoxLength`:  
-`float`, Maximum boxsize, in kpc; boxisze = min(halfStellarMassRadius * `boxLengthScale`, `maxBoxLength`).  
+`float`, Maximum boxsize, in kpc; `boxisze = min(halfStellarMassRadius * boxLengthScale, maxBoxLength)`.  
 
 `wavelengthGrid`:  
 `str`, `Linear` or `log`, Wavelength grid type for SKIRT.  
