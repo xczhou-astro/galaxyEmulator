@@ -84,13 +84,13 @@ for ID in subhaloIDs:
 ```  
 then, `python emulator.py`.  
 
-Or you can interactively run by specifying the subhaloIDs in jupyter as illustrated in `Notebooks/tutorial.ipynb`.  
+Or you can interactively run by specifying the subhaloIDs in jupyter as illustrated in [Notebooks/tutorial.ipynb](https://github.com/xczhou-astro/galaxyEmulator/blob/main/Notebooks/tutorial.ipynb).  
 ## Classes
 ### Configuration
 ```Python
 config = Configuration(surveys=None)
 ```
-surveys: `str (N,)`, considered surveys. If None, configurations will be read from current directory, or configuration files will be created from templates.  
+surveys: `str (N,)` or `list`, considered surveys. If None, configurations will be read from current directory, or configuration files will be created from templates.  
 ```Python
 conf = config.get_config()
 ```  
@@ -121,11 +121,11 @@ preprocess.get_subhalos()
 ```  
 Subhalos in stellar mass range in `config.ini` will be read.  
 ```Python
-preprocess.get_subhaloIDs()
+subhaloIDs = preprocess.get_subhaloIDs()
 ```  
 return subhaloIDs for subhalos obtained in `get_subhalos()`.  
 ```Python
-preprocess.get_stellarMasses()
+stellarMasses =preprocess.get_stellarMasses()
 ```
 return stellar masses for subhalos obtained in `get_subhalos()`.
 ```Python
@@ -145,16 +145,16 @@ preprocess.runSKIRT()
 ```
 Run SKIRT.  
 
-### PostProcessing
+### PostProcess
 ```Python
-postprocess = PostProcessing(properties, config)
+postprocess = PostProcess(properties, config)
 ```
-`properties`: `dict`: properties from `PreProcessing`.  
+`properties`: `dict`: properties from `PreProcess`, can be obtained by `PreProcess.get_properties()` or `PreProcess.properties`.  
 `config`: `dict`: configurations.  
 ```Python
-postprocess.runPostProcess()
-```
-Run postprocessing for subhalo obtained before.  
+postprocess.runPostProcess(showImages=False)
+```  
+`showImages`: `bool`: if show galaxy images and SEDs. Run postprocessing for galaxy simulation.  
 
 ## Config.ini
 `dataDir`:  
@@ -164,13 +164,13 @@ Run postprocessing for subhalo obtained before.
 `str`, Directory for TNG simulation.  
 
 `workingDir`:  
-`str`, Directory to execution of SKIRT.  
+`str`, Directory for execution of SKIRT.  
 
 `simulationMode`:  
 `str`, `ExtinctionOnly` or `DustEmission`, Simulation Mode, `DustEmission` should be used when near- or mid-infrared bands are considered.  
 
 `includeDust`:  
-`bool`, If add dusts generated from Gas particles; must be True if `simulationMode=DustEmission`  
+`bool`, If include dusts generated from Gas particles; must be True if `simulationMode=DustEmission`  
 
 `dustEmissionType`:  
 `str`, `Equilibrium` or `Stochastic`, Dust emission type.  
@@ -218,7 +218,7 @@ Run postprocessing for subhalo obtained before.
 `float (numViews,)`, Views; must be provided if `randomViews=False`; inclinations: 0 ~ 180, azimuths: -360 ~ 360.  
 
 `FoVboxLengthRatio`:  
-`float`, Ratio for field of view, Fov = Boxsize * `FoVboxLengthRatio`.  
+`float`, Ratio for field of view, `Fov = Boxsize * FoVboxLengthRatio`.  
 
 `postProcessing`:  
 `bool`, If run postprocessing.  
@@ -245,7 +245,7 @@ Run postprocessing for subhalo obtained before.
 `float`, Redshift of snapshot ID; should be larger than 0 when `snapNum=99` to avoid error.  
 
 `numThreads`:  
-`int`, Number of Threads to run SKIRT.  
+`int`, Number of Threads to run SKIRT. The perforamnce will not be improved if `numThreads > 24`.  
 
 `recordComponents`:  
 `bool`, If including transparent, primary direct, primary scattered, secondarytransparent, secondarydirect, secondaryscattered components for data cube and SED; Consumption of memory increases to 7 times if True.  
@@ -257,10 +257,10 @@ Run postprocessing for subhalo obtained before.
 `float`,  logCompactness for star-forming particles, sampled from normal distribution.  
 
 `logPressure`:  
-`float`, log10[(Pressure/k_B)/cm^-3 K] = `logPressure` for star-forming particles.  
+`float`, `log10[(Pressure/k_B)/cm^-3 K] = logPressure` for star-forming particles.  
 
 `PDRClearingTimescale`:  
-`float`, covering factor is f = e^(-t / PDRClearingTimescale), where t is the age.  
+`float`, covering factor is `f = e^(-t / PDRClearingTimescale)`, where t is the age.  
 
 `temperatureThreshold`:  
 `float`, Gas particles lower than `temperatureThreshold` will be considered as dusts.  
@@ -281,10 +281,10 @@ Config_\[survey\].ini is generated if `postProcessing=True` and `surveys` are pr
 `str (N,)`, Considered filters for survey.  
 
 `resolFromPix`:  
-`bool`, If use resolution derived from pixel scales; instrumental effects can only be added if `resolFromPix=False`.  
+`bool`, If use resolution derived from pixel scales; instrumental effects can only be added if `resolFromPix=True`.  
 
 `resolution`:  
-`float`, Spatial resolution, in pc; override `spatialResol`.  
+`float`, Spatial resolution, in pc; override `spatialResol` in config.ini.  
 
 `pixelScales`:  
 `float (N,)` or `float (1,)`, Pixel scales for considered filters, in arcsec; provide one value if homegenous, otherwise must be consistent with filters.  
@@ -293,7 +293,7 @@ Config_\[survey\].ini is generated if `postProcessing=True` and `surveys` are pr
 `int (N,)` or `int (1,)` Number exposures or number of filters.  
 
 `exposureTime`:  
-`float`, Exposure time, in second.  
+`float (N,)` or `int (1,)`, Exposure time, in second.  
 
 `aperture`:  
 `float`, Aperture size for instrument, in meter.  
@@ -307,7 +307,7 @@ Config_\[survey\].ini is generated if `postProcessing=True` and `surveys` are pr
 `PSFFWHM`:  
 `float (N,)` or `float (1,)`, FWHM to create Gaussian PSF kernels, in arcsec.  
 
-`includeBkg`:
+`includeBkg`:  
 `bool`, If include background; can be True if `resolFromPix=True`, otherwise must be False.  
 
 `bkgNoise`:  
