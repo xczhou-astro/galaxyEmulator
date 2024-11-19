@@ -16,6 +16,7 @@ Python packages:
 `matplotlib_scalebar==0.8.1`  
 `h5py==3.9.0`  
 `termcolor==2.4.0`  
+`photutils==2.0.2`
 
 Other packages:  
 [`illustris_python`](https://github.com/illustristng/illustris_python)  
@@ -48,7 +49,7 @@ python init.py --workspace=workspace --surveys="CSST,JWST"
 ```
 `config.ini`, `config_CSST.ini` and `config_JWST.ini` will be created in `workspace` directory. Please freely edit them as wish.  
 
-if `surveys` are not specified, only data cube files will be saved, and postprocessing will not be performed.  
+if `surveys` are not specified, `postPostprocessing` will be set as False. However, for consistency, `PostProcess` class must be initialized, and only data cube files will be saved.  
 
 Note:  
 Currently, we only upload throughputs and PSFs for CSST, and other surveys will be added later. (Nov. 14, 2024)  
@@ -81,14 +82,15 @@ for ID in subhaloIDs:
     postprocess = PostProcess(properties=preprocess.properties, config=conf) # initialize PostProcess class
     postprocess.runPostprocess() # run postprocessing
 ```  
-Or interactively run in ipython/jupyter specifying the subhaloIDs.
+then, `python emulator.py`.  
 
+Or you can interactively run by specifying the subhaloIDs in jupyter as illustrated in `Notebooks/tutorial.ipynb`.  
 ## Classes
 ### Configuration
 ```Python
 config = Configuration(surveys=None)
 ```
-surveys: `str (N,)`, considered surveys. If None, configurations will be read from current directory, or configuration files will be created.  
+surveys: `str (N,)`, considered surveys. If None, configurations will be read from current directory, or configuration files will be created from templates.  
 ```Python
 conf = config.get_config()
 ```  
@@ -96,7 +98,11 @@ return configurations.
 ```
 config.add_survey(surveys)
 ```
-surveys: `str (N,)`, new surveys to be added. Call get_config() to update configurations.  
+surveys: `str (N,)` or `list`, new surveys to be added. Call `get_config()` to update configurations.  
+```
+config.remove_survey(surveys)
+```
+surveys: `str (N,)` or `list`, surveys will be removed. Call `get_config()` to update configurations.  
 ```
 config.save_config()
 ```
@@ -113,19 +119,19 @@ preprocess = PreProcess(config)
 ```Python
 preprocess.get_subhalos()
 ```  
-Subhalos in stellar mass range in config.ini will be read.  
+Subhalos in stellar mass range in `config.ini` will be read.  
 ```Python
 preprocess.get_subhaloIDs()
 ```  
-return subhaloIDs for subhalos obtained in `get_subhalos`.  
+return subhaloIDs for subhalos obtained in `get_subhalos()`.  
 ```Python
 preprocess.get_stellarMasses()
 ```
-return stellar masses for subhalos obtained in `get_subhalos`.
+return stellar masses for subhalos obtained in `get_subhalos()`.
 ```Python
 preprocess.subhalo(subhaloID)
 ```
-`subhaloID`: `int`: ID of subhalo used for galaxy simulation.  
+`subhaloID`: `int`: Intialize subhalo with subhaloID.  
 ```Python
 preprocess.prepare()
 ```
