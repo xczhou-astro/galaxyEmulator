@@ -46,7 +46,7 @@ Other packages:
 Filters and PSFs of specific survey are saved in `Data/filters/(survey)` and `Data/PSFs/(survey)` directories.  
 The format of filters are recommended to be plain text file with extension `.fil`, including two columns: wavelength (in angstrom) and throughputs.  
 PSFs are recommended to be `numpy.array`, and can be opened by `numpy.loadtxt` or `numpy.load`.  
-Please make sure that the filters and PSFs exist in correct directories and format before running galaxyEmulator.
+Please make sure that the filters and PSFs exist in correct directories and formats before running galaxyEmulator.
 
 ## Usage
 ### Initialization
