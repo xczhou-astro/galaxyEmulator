@@ -407,6 +407,8 @@ class PostProcess:
                             savedFilename = f'mock_{survey}/Subhalo_{self.subhaloID}/galaxy_view_{i:02d}.png'
                             self.__plot_image(img, res, savedFilename=savedFilename)
 
+                if self.config['displaySED']:
+                    
                     for i in range(self.properties['numViews']):
                         
                         sed = np.loadtxt(sedFilenames[i])
