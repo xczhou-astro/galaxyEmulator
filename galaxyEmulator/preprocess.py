@@ -174,7 +174,8 @@ class PreProcess:
                         & (np.abs(g.pos[:, 2]) < region)\
                         & (starPart['age'] > ageThreshold))[0]
         size = mask.shape[0]
-        print('BC03 particles:', size)
+        sf = self.config['SEDFamily']
+        print(f'{sf} particles:', size)
         part['x'] = g.pos[:, 0][mask] # in kpc
         part['y'] = g.pos[:, 1][mask] # in kpc
         part['z'] = g.pos[:, 2][mask] # in kpc
