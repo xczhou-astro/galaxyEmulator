@@ -514,6 +514,9 @@ class Configuration:
             self.__exist('coveringFactor')
         else:
             self.__exist('PDRClearingTimescale')
+            
+        self.__exist('Nth')
+        self.__exist('maxSmoothingLength')
         self.__exist('logPressure')
         self.__exist('temperatureThreshold')
         DISMModel = self.__exist_return('DISMModel')
