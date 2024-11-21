@@ -266,6 +266,15 @@ class PreProcess:
             part['mass'] = np.array([])
             part['Z'] = np.array([])
 
+        header = 'dust particles\n' \
+                + '\n' \
+                + 'Column 1: x-coordinate (kpc)\n' \
+                + 'Column 2: y-coordinate (kpc)\n' \
+                + 'Column 3: z-coordinate (kpc)\n' \
+                + 'Column 4: smoothing length (kpc)\n' \
+                + 'Column 5: mass (Msun)\n' \
+                + 'Column 6: metallicity (1)\n' 
+                
         info = np.column_stack((part['x'], part['y'], part['z'],
                                 part['smoothLength'], part['mass'],
                                 part['Z']))
