@@ -509,7 +509,11 @@ class Configuration:
         self.__exist('logCompactnessMean')
         self.__exist('logCompactnessStd')
         self.__exist('massFraction')
-        self.__exist('PDRClearingTimescale')
+        covering = self.__exist_return('constantCoveringFactor')
+        if covering:
+            self.__exist('coveringFactor')
+        else:
+            self.__exist('PDRClearingTimescale')
         self.__exist('logPressure')
         self.__exist('temperatureThreshold')
         DISMModel = self.__exist_return('DISMModel')

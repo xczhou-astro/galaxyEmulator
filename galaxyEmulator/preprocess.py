@@ -147,7 +147,10 @@ class PreProcess:
         pressure = pressure.value
         part['pressure'] = np.array([pressure] * size)
         age = starPart['age'][mask] # in Myr
-        part['covering'] = np.array(np.exp(-age / np.float32(self.config['PDRClearingTimescale']))) # from Baes, M., et al. 2024
+        if self.config['constantCoveringFactor']:
+            part['covering'] = np.array([np.float32(self.config['coveringFactor'])] * size)
+        else:
+            part['covering'] = np.array(np.exp(-age / np.float32(self.config['PDRClearingTimescale']))) # from Baes, M., et al. 2024
 
         header = 'star forming particles\n' \
                 + '\n' \
