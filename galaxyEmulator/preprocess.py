@@ -54,12 +54,11 @@ class PreProcess:
             maxStellarMass = np.float32(self.config['maxStellarMass'])
         
         snap_subhalos = self.__read_subhalos()
-        stellarMass = snap_subhalos['SubhaloMassType'][:, 4] / self.h # 1e10 Msun/h to 1e10 Msun
-
+        stellarMass = snap_subhalos['SubhaloMassType'][:, 4] * 10**10 / self.h # Msun
+        
         subhalo_indices = np.where((stellarMass > minStellarMass) \
                                     & (stellarMass < maxStellarMass) \
-                                    & (snap_subhalos['SubhaloFlag'] == 1)\
-                                    & (snap_subhalos['SubhaloParent'] == 0))[0]
+                                    & (snap_subhalos['SubhaloFlag'] == 1))[0]
         self.subhaloIDs = subhalo_indices
         self.stellarMasses = stellarMass[self.subhaloIDs]
         halfMassRad = snap_subhalos['SubhaloHalfmassRadType'][:, 4] * self.a / self.h # kpc
@@ -75,7 +74,7 @@ class PreProcess:
         return self.subhaloIDs
 
     def get_stellarMasses(self):
-        return self.stellarMasses * 1e10 * u.Msun
+        return self.stellarMasses * u.Msun
 
     def subhalo(self, subhaloID):
 
@@ -105,12 +104,12 @@ class PreProcess:
                                             self.id, 'star', fields)
         
         ckdtree = cKDTree(starPart['Coordinates'])
-        k = 33
+        k = np.int32(self.config['Nth'])
         distances, _ = ckdtree.query(starPart['Coordinates'], k=k) # in ckpc/h
         distances_to_32nd_neighbor = distances[:, 32]
         starPart['smoothLength'] = distances_to_32nd_neighbor
         
-        max_smooth_length = 0.8 / self.a * self.h # kpc to ckpc/h
+        max_smooth_length = np.float32(self.config['maxSmoothingLength']) / self.a * self.h # kpc to ckpc/h
         starPart['smoothLength'][starPart['smoothLength'] > max_smooth_length] = max_smooth_length
         
         mask = np.where(starPart['GFM_StellarFormationTime'] > 0)[0]
@@ -211,12 +210,12 @@ class PreProcess:
                 gasPart = ill.snapshot.loadSubhalo(self.config['filePath'], 
                         self.snapnum, self.id, 'gas', fields)
                 ckdtree = cKDTree(gasPart['Coordinates'])
-                k = 33
+                k = np.int32(self.config['Nth'])
                 distances, _ = ckdtree.query(gasPart['Coordinates'], k=k)
                 distances_to_32nd_neighbor = distances[:, 32]
                 gasPart['smoothLength'] = distances_to_32nd_neighbor
                 
-                max_smooth_length = 0.8 / self.a * self.h # kpc to ckpc/h
+                max_smooth_length = np.float32(self.config['maxSmoothingLength']) / self.a * self.h # kpc to ckpc/h
                 gasPart['smoothLength'][gasPart['smoothLength'] > max_smooth_length] = max_smooth_length
                 
                 gasPart['Temperature'] = u2temp(gasPart['InternalEnergy'], 
