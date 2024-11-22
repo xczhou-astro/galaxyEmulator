@@ -299,7 +299,7 @@ class PostProcess:
         else:
             plt.show()
 
-    def __plot_sed(self, sed, logscale=True, savedFilename=None):
+    def __plot_sed(self, sed, waveRange, logscale=True, savedFilename=None):
         plt.figure()
         plt.plot(sed[:, 0] * 10**4, sed[:, 1], label='Total')
         # plt.plot(sed[:, 0] * 10**4, sed[:, 2], label='Transparent')
@@ -308,6 +308,8 @@ class PostProcess:
         # plt.legend(frameon=False)
         plt.xlabel(r'Wavelength $[\AA]$')
         plt.ylabel(r'$F_{\nu}\ [Jy]$')
+        plt.xlim(waveRange[0], waveRange[1]) # SED is redshifted.
+        
         if savedFilename is not None:
             plt.savefig(savedFilename)
             plt.close()
@@ -415,8 +417,13 @@ class PostProcess:
                         savedFilename = f'mock_{survey}/Subhalo_{self.subhaloID}/galaxy_SED_view_{i:02d}.png'
 
                         logscale = self.config['displaySEDxlogscale']
+                        minWave = self.properties['minWavelength']
+                        maxWave = self.properties['maxWavelength']
+                        redshift = self.properties['fixedRedshift']
+                        minWave = minWave * (1 + redshift) * 10**4
+                        maxWave = maxWave * (1 + redshift) * 10**4
                         # print(logscale)
-                        self.__plot_sed(sed, logscale=logscale,
+                        self.__plot_sed(sed,  waveRange=[minWave, maxWave], logscale=logscale,
                                     savedFilename=savedFilename)
                 
                 if showImages:

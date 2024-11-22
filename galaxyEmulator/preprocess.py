@@ -367,9 +367,11 @@ class PreProcess:
 
         z = np.float32(self.config['fixedRedshift'])
 
+        # self.properties['fixed']
         data = data.replace('redshift="0.008"', f'redshift="{z}"')
 
         self.properties = self.__get_properties(z=z)
+        self.properties['fixedRedshift'] = z
 
         SEDFamily = {'BC03': 'BruzualCharlotSEDFamily',
                  'FSPS': 'FSPSSEDFamily'}
@@ -392,9 +394,12 @@ class PreProcess:
         data = data.replace('numPackets="1e7"', f'numPackets="{numPackets}"')
         
         minWavelength = np.float32(self.config['minWavelength'])
-        data = data.replace('minWavelength="0.01 micron"', f'minWavelength="{minWavelength} micron"')
-        
         maxWavelength = np.float32(self.config['maxWavelength'])
+        
+        self.properties['minWavelength'] = minWavelength # micron
+        self.properties['maxWavelength'] = maxWavelength # micron
+        
+        data = data.replace('minWavelength="0.01 micron"', f'minWavelength="{minWavelength} micron"')
         data = data.replace('maxWavelength="1.2 micron"', f'maxWavelength="{maxWavelength} micron"')
 
         massFraction = np.float32(self.config['massFraction'])
