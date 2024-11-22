@@ -308,7 +308,6 @@ class Configuration:
                 self.flag_count += 1
                 
         self.__exist('minWavelength')
-        # exist('maxWavelength')
         self.__exist('boxLengthScale')
         self.__exist('maxBoxLength')
                 

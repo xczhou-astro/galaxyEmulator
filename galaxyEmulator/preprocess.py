@@ -396,11 +396,20 @@ class PreProcess:
         minWavelength = np.float32(self.config['minWavelength'])
         maxWavelength = np.float32(self.config['maxWavelength'])
         
+        data = data.replace('minWavelength="0.01 micron"', f'minWavelength="{minWavelength} micron"')
+        data = data.replace('maxWavelength="1.2 micron"', f'maxWavelength="{maxWavelength} micron"')
+        
+        waveConfig = '<LinWavelengthGrid minWavelength="0.01 micron" maxWavelength="1.2 micron" numWavelengths="1000"/>'
+        
+        minWavelengthRedshiftted = minWavelength * (1 + z)
+        maxWavelengthRedshiftted = maxWavelength * (1 + z)
+        
         self.properties['minWavelength'] = minWavelength # micron
         self.properties['maxWavelength'] = maxWavelength # micron
         
-        data = data.replace('minWavelength="0.01 micron"', f'minWavelength="{minWavelength} micron"')
-        data = data.replace('maxWavelength="1.2 micron"', f'maxWavelength="{maxWavelength} micron"')
+        waveConfigNew = waveConfig.replace('minWavelength="0.01 micron"', f'minWavelength="{minWavelengthRedshiftted} micron"')
+        waveConfigNew = waveConfigNew.replace('maxWavelength="1.2 micron"', f'maxWavelength="{maxWavelengthRedshiftted} micron"')
+        data = data.replace(waveConfig, waveConfigNew)
 
         massFraction = np.float32(self.config['massFraction'])
         data = data.replace('massFraction="0.3"', f'massFraction="{massFraction}"')
