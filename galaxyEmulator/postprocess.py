@@ -118,6 +118,7 @@ class PostProcess:
         trans = []
         waves = []
         factors = []
+        conversion_to_Jy = []
         for i, thr in enumerate(throughputs):
             wave_min = np.min(thr[:, 0])
             wave_max = np.max(thr[:, 0])
@@ -130,6 +131,12 @@ class PostProcess:
                         * numExp[i] * (exposureTime[i] * u.s) * (areaMirror * u.m**2) / (const.c * const.h) * u.angstrom**2
             converter = converter.to(u.sr ** -1)
             converter = converter.value
+            
+            Jy_convertor = trapezoid(trans_in * wave_in, wave_in) * u.angstrom**2
+            Jy_convertor = Jy_convertor / (const.h * const.c) * areaMirror * u.m**2 \
+                            * numExp[i] * (exposureTime[i] * u.s)
+            conversion_to_Jy.append(Jy_convertor.to(u.Jy**-1).value)
+
             image_arrs.append(image_arr)
             trans.append(trans_in)
             waves.append(wave_in)
@@ -176,6 +183,12 @@ class PostProcess:
             bandpass_images = images_with_bkg
                 
         bandpass_images = np.array(bandpass_images)
+
+        if self.config['unit'] == 'electron':
+            bandpass_images = bandpass_images
+        elif self.config['unit'] == 'Jy':
+            for i, img in enumerate(bandpass_images):
+                img = img / conversion_to_Jy[i]
         
         return bandpass_images
     
