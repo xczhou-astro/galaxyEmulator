@@ -420,8 +420,8 @@ class PostProcess:
                         minWave = self.properties['minWavelength']
                         maxWave = self.properties['maxWavelength']
                         redshift = self.properties['fixedRedshift']
-                        minWave = minWave * (1 + redshift) * 10**4
-                        maxWave = maxWave * (1 + redshift) * 10**4
+                        minWave = minWave * 10**4 # angstrom
+                        maxWave = maxWave * 10**4 # angstrom
                         # print(logscale)
                         self.__plot_sed(sed,  waveRange=[minWave, maxWave], logscale=logscale,
                                     savedFilename=savedFilename)

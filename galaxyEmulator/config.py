@@ -468,12 +468,16 @@ class Configuration:
                                             self.__issue(f'displayFilter not in {survey} filter set.')
                                             self.flag_count += 1
                                             
-            if len(pivots) & (self.__exist('maxWavelength')):
+            if len(pivots) & (self.__exist('maxWavelength')) & (self.__exist('minWavelength')):
                 max_pivot = np.max(pivots)
-                maxWavelength = np.float32(self.config['maxWavelength']) * 10**4
+                min_pivot = np.min(pivots)
+                redshift = self.__exist_return('fixedRedshift', 0)
                 
-                if max_pivot > maxWavelength:
-                    self.__issue('maxWavelength smaller than max wavelength for filters.')
+                maxWavelength = np.float32(self.config['maxWavelength']) * 10**4 * (1 + redshift)
+                minWaveLength = np.float32(self.config['minWavelength']) * 10**4 * (1 + redshift)
+                
+                if (max_pivot > maxWavelength) | (min_pivot < minWaveLength):
+                    self.__issue('Please make sure the redshiftted wavelength range covers all filters.')
                     self.flag_count += 1
                 
                 if (maxWavelength > 2 * 10**4) & (self.config['simulationMode'] != 'DustEmission'):
@@ -482,7 +486,7 @@ class Configuration:
             
                                             
         self.__exist('snapNum')
-        self.__exist('fixedRedshift', 0)
+        # self.__exist('fixedRedshift', 0)
         
         # numGeneration = self.__exist_return(f'numGeneration')
         # if numGeneration:
