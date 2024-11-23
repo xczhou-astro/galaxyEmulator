@@ -131,16 +131,21 @@ class PostProcess:
                         * numExp[i] * (exposureTime[i] * u.s) * (areaMirror * u.m**2) / (const.c * const.h) * u.angstrom**2
             converter = converter.to(u.sr ** -1)
             converter = converter.value
-            
-            Jy_convertor = trapezoid(trans_in * wave_in, wave_in) * u.angstrom**2
-            Jy_convertor = Jy_convertor / (const.h * const.c) * areaMirror * u.m**2 \
-                            * numExp[i] * (exposureTime[i] * u.s)
-            conversion_to_Jy.append(Jy_convertor.to(u.Jy**-1).value)
 
             image_arrs.append(image_arr)
             trans.append(trans_in)
             waves.append(wave_in)
             factors.append(converter)
+            
+            Jy_converter = trapezoid(trans_in * wave_in, wave_in) * u.angstrom**2
+            numerator = trapezoid(trans_in, wave_in)
+            denominator = trapezoid(trans_in * wave_in ** -2, wave_in)
+            pivot = np.sqrt(numerator / denominator)
+            Jy_converter = Jy_converter / (const.h * const.c) * areaMirror * u.m**2\
+                            * numExp[i] * (exposureTime[i] * u.s)
+            Jy_converter = (pivot * u.angstrom)**2 / const.c / Jy_converter
+            Jy_converter = Jy_converter.to(u.Jy).value
+            conversion_to_Jy.append(Jy_converter)
 
         # bandpass_images = []
         # for img, tran, wave, factor in zip(image_arrs, trans, waves, factors):
@@ -184,11 +189,15 @@ class PostProcess:
                 
         bandpass_images = np.array(bandpass_images)
 
-        if self.config['unit'] == 'electron':
+        if self.config['imageUnit'] == 'electron':
             bandpass_images = bandpass_images
-        elif self.config['unit'] == 'Jy':
+        elif self.config['imageUnit'] == 'flux':
             for i, img in enumerate(bandpass_images):
-                img = img / conversion_to_Jy[i]
+                img = img * conversion_to_Jy[i]
+        elif self.config['imageUnit'] == 'magnitude':
+            for i, img in enumerate(bandpass_images):
+                img = img * conversion_to_Jy[i]
+                img = -2.5 * np.log10(img + 1e-10) + 8.90
         
         return bandpass_images
     
@@ -214,6 +223,15 @@ class PostProcess:
         
         numfilters = self.properties[f'numfilters_{survey}']
         
+        unit_dict = {'electron': 'e', 'flux': 'Jy','magnitude': 'mag'}
+        unit_comment_dict = {
+            'electron': 'Unit of image, in electron counts',
+            'flux': 'Unit of image, in Jy',
+            'magnitude': 'Unit of image, in AB magnitude'
+        }
+        unit_type = self.config['imageUnit']
+        imageUnit = unit_dict[unit_type]
+        imageUnitComment = unit_comment_dict[unit_type]
         
         for i in range(self.properties['numViews']):
             header = fits.Header()
@@ -224,7 +242,7 @@ class PostProcess:
             header['snapNum'] = (self.config['snapNum'], 'snapshot ID of IllustrisTNG')
             header['SURVEY'] = (survey, 'Survey')
             header['NFILTERS'] = (numfilters, 'Number of filters')
-            header['UNIT'] = ('e', 'Unit of image array, in electron counts')
+            header['UNIT'] = (imageUnit, imageUnitComment)
             header['INCLI'] = (self.properties['inclinations'][i], 'Inclination angle, in deg')
             header['AZIMUTH'] = (self.properties['azimuths'][i], 'Azimuth angle, in deg')
             header['REDSHIFT'] = (self.properties['redshift'], 'Redshift')

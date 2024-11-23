@@ -364,6 +364,11 @@ class Configuration:
                         self.__issue('initialMassFunction unrecognized for FSPS SEDFamily.')
                         self.flag_count += 1
                         
+        imageUnit = self.__exist_return('imageUnit')
+        if (imageUnit != 'electron') & (imageUnit != 'flux') & (imageUnit != 'magnitude'):
+            self.__issue('imageUnit unrecognized.')
+            self.flag_count += 1
+                        
         self.__exist('minStellarMass')
         self.__exist('maxStellarMass')
         self.__exist('FoVboxLengthRatio')
