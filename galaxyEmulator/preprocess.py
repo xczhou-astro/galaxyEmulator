@@ -60,7 +60,7 @@ class PreProcess:
                                     & (stellarMass < maxStellarMass) \
                                     & (snap_subhalos['SubhaloFlag'] == 1))[0]
         self.subhaloIDs = subhalo_indices
-        self.stellarMasses = stellarMass[self.subhaloIDs]
+        self.stellarMasses = stellarMass[self.subhaloIDs] # Msun
         halfMassRad = snap_subhalos['SubhaloHalfmassRadType'][:, 4] * self.a / self.h # kpc
         self.halfMassRadii = halfMassRad[self.subhaloIDs]
         self.subhaloNum = self.subhaloIDs.shape[0]
@@ -84,7 +84,7 @@ class PreProcess:
         self.radius = self.halfMassRadii[self.idx]
         self.pos = self.subhaloPos[self.idx]
 
-        print(f'Stellar Mass of Subhalo {self.id} is {self.mass} [10^10 M_sun]')
+        print(f'Stellar Mass of Subhalo {self.id} is {self.mass}.')
 
     def __get_particles(self):
         
