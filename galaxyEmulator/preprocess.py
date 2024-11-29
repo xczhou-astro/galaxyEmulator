@@ -67,7 +67,7 @@ class PreProcess:
         subhaloPos = snap_subhalos['SubhaloPos'] * self.a / self.h # in kpc
         self.subhaloPos = subhaloPos[self.subhaloIDs]
 
-        print(f'{self.subhaloNum} subhalos in snapshot {self.snapnum} in stellar mass from {minStellarMass} to {maxStellarMass} [10^10 M_sun]')
+        print(f'{self.subhaloNum} subhalos in snapshot {self.snapnum} in stellar mass from {minStellarMass} to {maxStellarMass} [M_sun]')
 
 
     def get_subhaloIDs(self):
