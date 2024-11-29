@@ -48,7 +48,7 @@
                     <RadiationFieldOptions storeRadiationField="false"/>
                 </radiationFieldOptions>
                 <media type="Medium">
-                    <ParticleMedium filename="dusts.txt" massType="Mass" massFraction="0.3" importMetallicity="true" importTemperature="false" maxTemperature="0 K" importVelocity="false" importMagneticField="false" importVariableMixParams="false" useColumns="">
+                    <ParticleMedium filename="dusts.txt" massType="Mass" massFraction="0.3" importMetallicity="true" importTemperature="true" maxTemperature="0 K" importVelocity="false" importMagneticField="false" importVariableMixParams="false" useColumns="">
                         <smoothingKernel type="SmoothingKernel">
                             <CubicSplineSmoothingKernel/>
                         </smoothingKernel>

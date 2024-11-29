@@ -85,6 +85,10 @@ class PreProcess:
         self.pos = self.subhaloPos[self.idx]
 
         print(f'Stellar Mass of Subhalo {self.id} is {self.mass}.')
+        
+    def __get_TNG(self):
+        tng = self.config['filePath'].split('/')[-1]
+        return tng
 
     def __get_particles(self):
         
@@ -95,29 +99,45 @@ class PreProcess:
 
         region = self.boxLength / 2.
 
-        # a = 1 / (1 + self.snapz)
-
         fields = ['GFM_InitialMass', 'GFM_Metallicity', 'GFM_StellarFormationTime',
                 'Coordinates']
         
         starPart = ill.snapshot.loadSubhalo(self.config['filePath'], self.snapnum,
                                             self.id, 'star', fields)
         
-        ckdtree = cKDTree(starPart['Coordinates'])
-        k = np.int32(self.config['Nth'])
-        distances, _ = ckdtree.query(starPart['Coordinates'], k=k) # in ckpc/h
-        distances_to_32nd_neighbor = distances[:, 32]
-        starPart['smoothLength'] = distances_to_32nd_neighbor
-        
-        max_smooth_length = np.float32(self.config['maxSmoothingLength']) / self.a * self.h # kpc to ckpc/h
-        starPart['smoothLength'][starPart['smoothLength'] > max_smooth_length] = max_smooth_length
+        if self.config['constSmoothingLengh']:
+            # see https://www.tng-project.org/data/docs/background/ for smoothing length
+            # see https://www.tng-project.org/data/forum/topic/265/spatial-resolution-softening-length-minimum-length/
+            stellar_smoothLength_dict = {'TNG-50': 288, 'TNG-100': 740, 'TNG-300': 1480} # in pc, physical      
+            tng = self.__get_TNG()
+            stellar_smoothLength = stellar_smoothLength_dict[tng]
+            
+            if self.snapz < 1:
+                stellar_smoothLength = stellar_smoothLength * (1 + self.snapz)
+            else:
+                stellar_smoothLength = stellar_smoothLength * (1 + 1)
+            
+            stellar_smoothLength = stellar_smoothLength / 10**-3 / self.a * self.h # pc to ckpc/h
+            starPart['smoothLength'] = np.array([stellar_smoothLength] * starPart['counts'])
+            
+        else:
+            
+            # obtained from the nearest neighbor
+            ckdtree = cKDTree(starPart['Coordinates'])
+            k = np.int32(self.config['Nth']) + 1 
+            distances, _ = ckdtree.query(starPart['Coordinates'], k=k) # in ckpc/h
+            distances_to_32nd_neighbor = distances[:, k]
+            starPart['smoothLength'] = distances_to_32nd_neighbor
+            
+            max_smooth_length = np.float32(self.config['maxSmoothingLength']) / self.a * self.h # kpc to ckpc/h
+            starPart['smoothLength'][starPart['smoothLength'] > max_smooth_length] = max_smooth_length
         
         mask = np.where(starPart['GFM_StellarFormationTime'] > 0)[0]
         for key in starPart.keys():
             if key == 'count':
                 pass
             else:
-                starPart[key] = starPart[key][mask]
+                starPart[key] = starPart[key][mask] # select stellar particles instead of wind
         
         starPart['age'] = fage(self.snapz) - fage(1/starPart['GFM_StellarFormationTime'] - 1) # in Myr
         g = Galaxy(starPart['Coordinates'], starPart['smoothLength'], starPart['GFM_InitialMass'],
@@ -250,6 +270,7 @@ class PreProcess:
                 part['smoothLength'] = gas.smoothLength[mask]
                 part['mass'] = gas.mass[mask]
                 part['Z'] = gasPart['GFM_Metallicity'][mask]
+                part['T'] = gasPart['Temperature'][mask]
             except:
                 part['x'] = np.array([])
                 part['y'] = np.array([])
@@ -257,6 +278,7 @@ class PreProcess:
                 part['smoothLength'] = np.array([])
                 part['mass'] = np.array([])
                 part['Z'] = np.array([])
+                part['T'] = np.array([])
         else:
             part['x'] = np.array([])
             part['y'] = np.array([])
@@ -264,6 +286,7 @@ class PreProcess:
             part['smoothLength'] = np.array([])
             part['mass'] = np.array([])
             part['Z'] = np.array([])
+            part['T'] = np.array([])
 
         header = 'dust particles\n' \
                 + '\n' \
@@ -272,11 +295,12 @@ class PreProcess:
                 + 'Column 3: z-coordinate (kpc)\n' \
                 + 'Column 4: smoothing length (kpc)\n' \
                 + 'Column 5: mass (Msun)\n' \
-                + 'Column 6: metallicity (1)\n' 
+                + 'Column 6: metallicity (1)\n' \
+                + 'Column 7: temperature (K)\n'
                 
         info = np.column_stack((part['x'], part['y'], part['z'],
                                 part['smoothLength'], part['mass'],
-                                part['Z']))
+                                part['Z'], part['T']))
 
         np.savetxt(self.workingDir + '/dusts.txt', info, header=header)
 
