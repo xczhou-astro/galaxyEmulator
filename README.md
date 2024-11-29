@@ -48,6 +48,11 @@ The format of filters are recommended to be plain text file with extension `.fil
 PSFs are recommended to be `numpy.array`, and can be opened by `numpy.loadtxt` or `numpy.load`.  
 Please make sure that the filters and PSFs exist in correct directories and formats before running galaxyEmulator.
 
+## Instrumental Noise
+Instrumental noises are calculated based on the throughput of each filter and sky emission curve.  
+We provide a helper notebook for calculation of instrumental noises in [Notebooks/calc_bkg.ipynb](https://github.com/xczhou-astro/galaxyEmulator/blob/main/Notebooks/calc_bkg.ipynb).  
+Please use with caution.  
+
 ## Usage
 ### Initialization
 ```Python
