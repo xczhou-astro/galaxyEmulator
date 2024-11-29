@@ -136,6 +136,18 @@ class Configuration:
             survey_config[key + f'_{survey}'] = val
         return survey_config
     
+    def __adapt_survey(self, survey, survey_config):
+        if survey == 'HST':
+            self.__for_HST(survey_config)
+        elif survey == 'JWST':
+            self.__for_JWST(survey_config)
+    
+    def __for_HST(self, survey_config):
+        survey_config['filters_HST'] = 'UV_275W'
+        survey_config['resolFromPix_HST'] = True
+        survey_config['pixelScales_HST'] = '0.074'
+        # need to be filled
+
     def __save_survey_config(self, survey_config, survey):
         keys = list(survey_config.keys())
         with open(f'config_{survey}.ini', 'w') as f:
@@ -491,22 +503,6 @@ class Configuration:
             
                                             
         self.__exist('snapNum')
-        # self.__exist('fixedRedshift', 0)
-        
-        # numGeneration = self.__exist_return(f'numGeneration')
-        # if numGeneration:
-        #     if numGeneration == 'all':
-        #         pass
-        #     elif numGeneration.isdigit():
-        #         number = np.int32(numGeneration)
-        #         if 'subhaloIDs' in self.config:
-        #             subhaloIDs = split(self.config['subhaloIDs'])
-        #             if number != len(subhaloIDs):
-        #                 self.__issue('number of subhaloIDs inconsistent with numGeneration.')
-        #                 self.flag_count += 1
-        #     else:
-        #         self.__issue('numGeneration unrecognized.')
-        #         self.flag_count += 1
         
         if self.__exist('numThreads'):
             if np.int32(self.config['numThreads']) > 24:
@@ -522,9 +518,12 @@ class Configuration:
             self.__exist('coveringFactor')
         else:
             self.__exist('PDRClearingTimescale')
-            
-        self.__exist('Nth')
-        self.__exist('maxSmoothingLength')
+
+        smoothLengthFromNeighbors = self.__exist_return('smoothLengthFromNeighbors')
+        if smoothLengthFromNeighbors:
+            self.__exist('NthNeighbor')
+            self.__exist('maxSmoothingLength')
+
         self.__exist('logPressure')
         self.__exist('temperatureThreshold')
         DISMModel = self.__exist_return('DISMModel')

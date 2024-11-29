@@ -129,7 +129,7 @@ class PreProcess:
             
             # obtained from the nearest neighbor
             ckdtree = cKDTree(starPart['Coordinates'])
-            k = np.int32(self.config['Nth']) + 1 
+            k = np.int32(self.config['NthNeighbor']) + 1 
             distances, _ = ckdtree.query(starPart['Coordinates'], k=k) # in ckpc/h
             distances_to_32nd_neighbor = distances[:, k]
             starPart['smoothLength'] = distances_to_32nd_neighbor
