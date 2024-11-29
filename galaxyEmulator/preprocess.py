@@ -67,7 +67,10 @@ class PreProcess:
         subhaloPos = snap_subhalos['SubhaloPos'] * self.a / self.h # in kpc
         self.subhaloPos = subhaloPos[self.subhaloIDs]
 
-        print(f'{self.subhaloNum} subhalos in snapshot {self.snapnum} in stellar mass from {minStellarMass} to {maxStellarMass} [M_sun]')
+        minStellarMass_in_10 = np.around(np.log10(minStellarMass), 2)
+        maxStellarMass_in_10 = np.around(np.log10(maxStellarMass), 2)
+        
+        print(f'{self.subhaloNum} subhalos in snapshot {self.snapnum} in stellar mass from 10^{minStellarMass_in_10} to 10^{maxStellarMass_in_10} [M_sun]')
 
 
     def get_subhaloIDs(self):
@@ -113,7 +116,7 @@ class PreProcess:
             stellar_smoothLength = stellar_smoothLength_dict[tng]
             
             if self.snapz < 1:
-                stellar_smoothLength = stellar_smoothLength * (1 + self.snapz)
+                stellar_smoothLength = stellar_smoothLength * (1 + self.snapz) # need modify
             else:
                 stellar_smoothLength = stellar_smoothLength * (1 + 1)
             
