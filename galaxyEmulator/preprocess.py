@@ -12,7 +12,8 @@ import sys
 class Galaxy:
 
     def __init__(self, position, smoothLength, mass, subhaloPos, a, h):
-        self.pos = position * a / h - subhaloPos # kpc
+        # convert comoving distance (ckpc/h) to physical distance (kpc)
+        self.pos = position * a / h - subhaloPos # kpc 
         self.smoothLength = smoothLength * a / h # kpc
         self.mass = mass * 10**10 / h # Msun
         
@@ -108,19 +109,20 @@ class PreProcess:
         starPart = ill.snapshot.loadSubhalo(self.config['filePath'], self.snapnum,
                                             self.id, 'star', fields)
         
-        if self.config['constSmoothingLengh']:
+        if not self.config['smoothLengthFromNeighbors']:
             # see https://www.tng-project.org/data/docs/background/ for smoothing length
             # see https://www.tng-project.org/data/forum/topic/265/spatial-resolution-softening-length-minimum-length/
-            stellar_smoothLength_dict = {'TNG-50': 288, 'TNG-100': 740, 'TNG-300': 1480} # in pc, physical      
+            stellar_smoothLength_dict = {'TNG-50': 288, 'TNG-100': 740, 'TNG-300': 1480} # in pc, physical
             tng = self.__get_TNG()
             stellar_smoothLength = stellar_smoothLength_dict[tng]
-            
-            if self.snapz < 1:
-                stellar_smoothLength = stellar_smoothLength * (1 + self.snapz) # need modify
+
+            if self.snapz <= 1:
+                # z = 0 ~ 1, smoothing length are changing
+                stellar_smoothLength = stellar_smoothLength * 10**-3 / self.a * self.h # in ckpc/h, comoving scale
             else:
-                stellar_smoothLength = stellar_smoothLength * (1 + 1)
+                # z > 1, smoothing length are constant as z = 1 value
+                stellar_smoothLength = stellar_smoothLength * 10**-3 / 0.5 * self.h # in ckpc/h, comoving scale
             
-            stellar_smoothLength = stellar_smoothLength / 10**-3 / self.a * self.h # pc to ckpc/h
             starPart['smoothLength'] = np.array([stellar_smoothLength] * starPart['counts'])
             
         else:
@@ -232,14 +234,13 @@ class PreProcess:
                         'Density']
                 gasPart = ill.snapshot.loadSubhalo(self.config['filePath'], 
                         self.snapnum, self.id, 'gas', fields)
-                ckdtree = cKDTree(gasPart['Coordinates'])
-                k = np.int32(self.config['Nth'])
-                distances, _ = ckdtree.query(gasPart['Coordinates'], k=k)
-                distances_to_32nd_neighbor = distances[:, 32]
-                gasPart['smoothLength'] = distances_to_32nd_neighbor
                 
-                max_smooth_length = np.float32(self.config['maxSmoothingLength']) / self.a * self.h # kpc to ckpc/h
-                gasPart['smoothLength'][gasPart['smoothLength'] > max_smooth_length] = max_smooth_length
+                # smoothing length of gas cells is 2.5 times cell radius
+                # Density in (10^10 Msun/h) / (ckpc/h)^3, Masses in 10^10 Msun/h
+                # see https://arxiv.org/pdf/1707.03395
+                volumes = gasPart['Masses'] / gasPart['Density']
+                cellRadius = (3 * volumes / 4 / np.pi)**(1/3)
+                gasPart['smoothLength'] = 2.5 * cellRadius # in ckpc/h
                 
                 gasPart['Temperature'] = u2temp(gasPart['InternalEnergy'], 
                                                 gasPart['ElectronAbundance'])
@@ -259,10 +260,9 @@ class PreProcess:
                     size = mask.shape[0]
                 
                 elif self.config['DISMModel'] == 'Torrey_2012':
-                    
-                    density = gasPart['Density'] * ((10**10 * u.Msun / self.h) / (u.kpc / self.h * self.a)**3)
-                    density = density.to(10**10 * self.h**2 * u.Msun * u.kpc**-3)
-                    othermask = np.where(np.log10(gasPart['Temperature']) < (6 + 0.25 * np.log10(density.value)))[0]
+                    # Density from (10^10 Msun/h) / (ckpc/h)^3 to 10^10 h^2 Msun / kpc^3
+                    density = gasPart['Density'] * self.a**3
+                    othermask = np.where(np.log10(gasPart['Temperature']) < (6 + 0.25 * np.log10(density)))[0]
                     mask = np.intersect1d(spatialmask, othermask)
                     size = mask.shape[0]
                                          
@@ -273,7 +273,7 @@ class PreProcess:
                 part['smoothLength'] = gas.smoothLength[mask]
                 part['mass'] = gas.mass[mask]
                 part['Z'] = gasPart['GFM_Metallicity'][mask]
-                part['T'] = gasPart['Temperature'][mask]
+                part['Temperature'] = gasPart['Temperature'][mask]
             except:
                 part['x'] = np.array([])
                 part['y'] = np.array([])
@@ -281,7 +281,7 @@ class PreProcess:
                 part['smoothLength'] = np.array([])
                 part['mass'] = np.array([])
                 part['Z'] = np.array([])
-                part['T'] = np.array([])
+                part['Temperature'] = np.array([])
         else:
             part['x'] = np.array([])
             part['y'] = np.array([])
@@ -289,7 +289,7 @@ class PreProcess:
             part['smoothLength'] = np.array([])
             part['mass'] = np.array([])
             part['Z'] = np.array([])
-            part['T'] = np.array([])
+            part['Temperature'] = np.array([])
 
         header = 'dust particles\n' \
                 + '\n' \
@@ -303,7 +303,7 @@ class PreProcess:
                 
         info = np.column_stack((part['x'], part['y'], part['z'],
                                 part['smoothLength'], part['mass'],
-                                part['Z'], part['T']))
+                                part['Z'], part['Temperature']))
 
         np.savetxt(self.workingDir + '/dusts.txt', info, header=header)
 
