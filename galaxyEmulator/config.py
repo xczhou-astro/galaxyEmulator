@@ -174,7 +174,7 @@ class Configuration:
         survey_config[f'numExposure_{survey}'] = '1'
         survey_config[f'exposureTime_{survey}'] = '600'
         survey_config[f'aperture_{survey}'] = '6.5'
-        survey_config[f'bkgNoise_{survey}'] = '29.98,46.41,21.17,23.09,22.57,20.00,'
+        survey_config[f'bkgNoise_{survey}'] = '29.98,46.41,21.17,23.09,22.57,20.00'
         survey_config[f'RGBImg_{survey}'] = False
         survey_config[f'displayFilter_{survey}'] = 'F200W'
         
@@ -188,8 +188,8 @@ class Configuration:
         survey_config[f'numExposure_{survey}'] = '1'
         survey_config[f'exposureTime_{survey}'] = '600'
         survey_config[f'aperture_{survey}'] = '1.2'
-        survey_config[f'PSFFromFile'] = False
-        survey_config[f'PSFFWHM'] = '0.204,0.493,0.515,0.553'
+        survey_config[f'PSFFromFile_{survey}'] = False
+        survey_config[f'PSFFWHM_{survey}'] = '0.204,0.493,0.515,0.553'
         survey_config[f'bkgNoise_{survey}'] = '20.92,47.54,52.17,48.39'
         survey_config[f'RGBImg_{survey}'] = False
         survey_config[f'displayFilter_{survey}'] = 'VIS'
@@ -489,6 +489,7 @@ class Configuration:
                             if self.__exist_return(f'includePSF_{survey}'):
                                 PSFFromFile = self.__exist_return(f'PSFFromFile_{survey}')
                                 if not PSFFromFile:
+                                    # PSFFromFile is False
                                     PSFFWHM = self.__exist_return(f'PSFFWHM_{survey}')
                                     if PSFFWHM:
                                         self.__match(f'filters_{survey}', f'PSFFWHM_{survey}', True)
@@ -499,6 +500,7 @@ class Configuration:
 
 
                                 else:
+                                    # PSFFromFile is True
                                     if os.path.exists(f'../Data/PSFs/{survey}'):
                                         psffiles = os.listdir(f'../Data/PSFs/{survey}')
                                         psffilters = [name.split('.')[0] for name in psffiles]
