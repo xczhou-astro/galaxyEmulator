@@ -570,7 +570,7 @@ class Configuration:
                     self.flag_count += 1
                 
                 if (max_pivot > 4 * 10**4) & (self.config['simulationMode'] != 'DustEmission'):
-                    self.__issue('filters reaching infrared, simulationMode should be DustEmission.')
+                    self.__issue('Filters reaching infrared, simulationMode should be DustEmission.')
                     self.flag_count += 1
             
                                             
