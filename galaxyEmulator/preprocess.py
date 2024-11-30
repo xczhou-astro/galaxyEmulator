@@ -71,9 +71,11 @@ class PreProcess:
         minStellarMass_in_10 = np.around(np.log10(minStellarMass), 2)
         maxStellarMass_in_10 = np.around(np.log10(maxStellarMass), 2)
         
-        print(f'{self.subhaloNum} subhalos in snapshot {self.snapnum} in stellar mass from 10^{minStellarMass_in_10} to 10^{maxStellarMass_in_10} [M_sun]')
-
-
+        if maxStellarMass == np.inf:
+            print(f'{self.subhaloNum} subhalos in snapshot {self.snapnum} in stellar mass higher than 10^{minStellarMass_in_10} [M_sun]')
+        else:
+            print(f'{self.subhaloNum} subhalos in snapshot {self.snapnum} in stellar mass from 10^{minStellarMass_in_10} to 10^{maxStellarMass_in_10} [M_sun]')
+ 
     def get_subhaloIDs(self):
         return self.subhaloIDs
 
@@ -88,7 +90,8 @@ class PreProcess:
         self.radius = self.halfMassRadii[self.idx]
         self.pos = self.subhaloPos[self.idx]
 
-        print(f'Stellar Mass of Subhalo {self.id} is {self.mass}.')
+        mass_in_10 = np.log10(self.mass)
+        print(f'Stellar Mass of Subhalo {self.id} is 10^{mass_in_10} [M_sun].')
         
     def __get_TNG(self):
         tng = self.config['filePath'].split('/')[-1]
