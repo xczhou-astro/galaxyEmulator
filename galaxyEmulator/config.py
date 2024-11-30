@@ -569,7 +569,7 @@ class Configuration:
                     self.__issue('Please make sure the redshiftted wavelength range covers all filters.')
                     self.flag_count += 1
                 
-                if (maxWavelength > 2 * 10**4) & (self.config['simulationMode'] != 'DustEmission'):
+                if (max_pivot > 4 * 10**4) & (self.config['simulationMode'] != 'DustEmission'):
                     self.__issue('filters reaching infrared, simulationMode should be DustEmission.')
                     self.flag_count += 1
             
