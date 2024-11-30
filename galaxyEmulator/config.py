@@ -170,11 +170,11 @@ class Configuration:
         survey = 'JWST'
         survey_config[f'filters_{survey}'] = 'F356W,F444W,F070W,F150W,F200W,F182M'
         survey_config[f'resolFromPix_{survey}'] = True
-        survey_config[f'pixelScales_{survey}'] = '0.063,0.063,0.031,0.031,0.031'
+        survey_config[f'pixelScales_{survey}'] = '0.063,0.063,0.031,0.031,0.031,0.031'
         survey_config[f'numExposure_{survey}'] = '1'
         survey_config[f'exposureTime_{survey}'] = '600'
         survey_config[f'aperture_{survey}'] = '6.5'
-        survey_config[f'bkgNoise_{survey}'] = '29.98,46.41,23.09,22.57,20.00'
+        survey_config[f'bkgNoise_{survey}'] = '29.98,46.41,21.17,23.09,22.57,20.00,'
         survey_config[f'RGBImg_{survey}'] = False
         survey_config[f'displayFilter_{survey}'] = 'F200W'
         
@@ -198,7 +198,7 @@ class Configuration:
         
     def __for_Roman(self, survey_config):
         survey = 'Roman'
-        survey_config[f'filters_{survey}'] = 'F062,F087,F106,F129,F159,F184,F213,F146'
+        survey_config[f'filters_{survey}'] = 'F062,F087,F106,F129,F158,F184,F213,F146'
         survey_config[f'resolFromPix_{survey}'] = True
         survey_config[f'pixelScales_{survey}'] = '0.11'
         survey_config[f'numExposure_{survey}'] = '1'
@@ -552,6 +552,7 @@ class Configuration:
                 max_pivot = np.max(pivots)
                 min_pivot = np.min(pivots)
                 redshift = self.__exist_return('fixedRedshift', 0)
+                redshift = np.float32(redshift)
                 
                 maxWavelength = np.float32(self.config['maxWavelength']) * 10**4 * (1 + redshift)
                 minWaveLength = np.float32(self.config['minWavelength']) * 10**4 * (1 + redshift)
