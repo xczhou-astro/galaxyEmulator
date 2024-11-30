@@ -164,6 +164,7 @@ class Configuration:
         survey_config[f'aperture_{survey}'] = '2.4'
         survey_config[f'bkgNoise_{survey}'] = '3.22,4.58,6.62,40.42,42.65'
         survey_config[f'RGBImg_{survey}'] = False
+        survey_config[f'RGBFilters_{survey}'] = ''
         survey_config[f'displayFilter_{survey}'] = 'UV_F814W'
         
         return survey_config
@@ -178,6 +179,7 @@ class Configuration:
         survey_config[f'aperture_{survey}'] = '6.5'
         survey_config[f'bkgNoise_{survey}'] = '29.98,46.41,21.17,23.09,22.57,20.00'
         survey_config[f'RGBImg_{survey}'] = False
+        survey_config[f'RGBFilters_{survey}'] = ''
         survey_config[f'displayFilter_{survey}'] = 'F200W'
         
         return survey_config
@@ -194,6 +196,7 @@ class Configuration:
         survey_config[f'PSFFWHM_{survey}'] = '0.204,0.493,0.515,0.553'
         survey_config[f'bkgNoise_{survey}'] = '20.92,47.54,52.17,48.39'
         survey_config[f'RGBImg_{survey}'] = False
+        survey_config[f'RGBFilters_{survey}'] = ''
         survey_config[f'displayFilter_{survey}'] = 'VIS'
         
         return survey_config
@@ -208,6 +211,7 @@ class Configuration:
         survey_config[f'aperture_{survey}'] = '2.36'
         survey_config[f'bkgNoise_{survey}'] = '38.03,36.96,37.81,37.9,37.71,32.12,30.67,58.1'
         survey_config[f'RGBImg_{survey}'] = False
+        survey_config[f'RGBFilters_{survey}'] = ''
         survey_config[f'displayFilter_{survey}'] = 'F106'
         
         return survey_config
