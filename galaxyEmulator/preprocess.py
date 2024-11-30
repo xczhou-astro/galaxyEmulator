@@ -123,7 +123,7 @@ class PreProcess:
                 # z > 1, smoothing length are constant as z = 1 value
                 stellar_smoothLength = stellar_smoothLength * 10**-3 / 0.5 * self.h # in ckpc/h, comoving scale
             
-            starPart['smoothLength'] = np.array([stellar_smoothLength] * starPart['counts'])
+            starPart['smoothLength'] = np.array([stellar_smoothLength] * starPart['count'])
             
         else:
             
