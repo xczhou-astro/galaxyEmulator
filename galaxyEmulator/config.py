@@ -145,10 +145,12 @@ class Configuration:
             survey_config = self.__for_Euclid(survey_config)
         elif survey == 'Roman':
             survey_config = self.__for_Roman(survey_config)
+        elif survey == 'CSST':
+            survey_config = survey_config
             # more elif to include the ground based survey
         else:
             survey_config = survey_config
-            print('Please provide your own Throughputs and PSFs of filters')
+            print(f'Please provide your own Throughputs and PSFs of filters for {survey}')
         
         return survey_config
     
