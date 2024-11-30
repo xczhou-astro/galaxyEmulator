@@ -138,17 +138,80 @@ class Configuration:
     
     def __adapt_survey(self, survey, survey_config):
         if survey == 'HST':
-            self.__for_HST(survey_config)
+            survey_config = self.__for_HST(survey_config)
         elif survey == 'JWST':
-            self.__for_JWST(survey_config)
+            survey_config = self.__for_JWST(survey_config)
+        elif survey == 'Euclid':
+            survey_config = self.__for_Euclid(survey_config)
+        elif survey == 'Roman':
+            survey_config = self.__for_Roman(survey_config)
+            # more elif to include the ground based survey
+        else:
+            survey_config = survey_config
+            print('Please provide your own Throughputs and PSFs of filters')
+        
+        return survey_config
     
     def __for_HST(self, survey_config):
-        survey_config['filters_HST'] = 'UV_275W'
-        survey_config['resolFromPix_HST'] = True
-        survey_config['pixelScales_HST'] = '0.074'
-        # need to be filled
+        survey = 'HST'
+        survey_config[f'filters_{survey}'] = 'UV_F275W,UV_F390W,UV_F814W,IR_F105W,IR_F140W'
+        survey_config[f'resolFromPix_{survey}'] = True
+        survey_config[f'pixelScales_{survey}'] = '0.04,0.04,0.04,0.13,0.13'
+        survey_config[f'numExposure_{survey}'] = '1'
+        survey_config[f'exposureTime_{survey}'] = '600'
+        survey_config[f'aperture_{survey}'] = '2.4'
+        survey_config[f'bkgNoise_{survey}'] = '3.22,4.58,6.62,40.42,42.65'
+        survey_config[f'RGBImg_{survey}'] = False
+        survey_config[f'displayFilter_{survey}'] = 'UV_F814W'
+        
+        return survey_config
+    
+    def __for_JWST(self, survey_config):
+        survey = 'JWST'
+        survey_config[f'filters_{survey}'] = 'F356W,F444W,F070W,F150W,F200W,F182M'
+        survey_config[f'resolFromPix_{survey}'] = True
+        survey_config[f'pixelScales_{survey}'] = '0.063,0.063,0.031,0.031,0.031'
+        survey_config[f'numExposure_{survey}'] = '1'
+        survey_config[f'exposureTime_{survey}'] = '600'
+        survey_config[f'aperture_{survey}'] = '6.5'
+        survey_config[f'bkgNoise_{survey}'] = '29.98,46.41,23.09,22.57,20.00'
+        survey_config[f'RGBImg_{survey}'] = False
+        survey_config[f'displayFilter_{survey}'] = 'F200W'
+        
+        return survey_config
+    
+    def __for_Euclid(self, survey_config):
+        survey = 'Euclid'
+        survey_config[f'filters_{survey}'] = 'VIS,Y,J,H'
+        survey_config[f'resolFromPix_{survey}'] = True
+        survey_config[f'pixelScales_{survey}'] = '0.1,0.3,0.3,0.3'
+        survey_config[f'numExposure_{survey}'] = '1'
+        survey_config[f'exposureTime_{survey}'] = '600'
+        survey_config[f'aperture_{survey}'] = '1.2'
+        survey_config[f'PSFFromFile'] = False
+        survey_config[f'PSFFWHM'] = '0.204,0.493,0.515,0.553'
+        survey_config[f'bkgNoise_{survey}'] = '20.92,47.54,52.17,48.39'
+        survey_config[f'RGBImg_{survey}'] = False
+        survey_config[f'displayFilter_{survey}'] = 'VIS'
+        
+        return survey_config
+        
+    def __for_Roman(self, survey_config):
+        survey = 'Roman'
+        survey_config[f'filters_{survey}'] = 'F062,F087,F106,F129,F159,F184,F213,F146'
+        survey_config[f'resolFromPix_{survey}'] = True
+        survey_config[f'pixelScales_{survey}'] = '0.11'
+        survey_config[f'numExposure_{survey}'] = '1'
+        survey_config[f'exposureTime_{survey}'] = '600'
+        survey_config[f'aperture_{survey}'] = '2.36'
+        survey_config[f'bkgNoise_{survey}'] = '38.03,36.96,37.81,37.9,37.71,32.12,30.67,58.1'
+        survey_config[f'RGBImg_{survey}'] = False
+        survey_config[f'displayFilter_{survey}'] = 'F106'
+        
+        return survey_config
 
     def __save_survey_config(self, survey_config, survey):
+        survey_config = self.__adapt_survey(survey, survey_config)
         keys = list(survey_config.keys())
         with open(f'config_{survey}.ini', 'w') as f:
             for key in keys:
