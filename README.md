@@ -62,8 +62,7 @@ python init.py --workspace=workspace --surveys="CSST,JWST"
 
 if `surveys` are not specified, `postPostprocessing` will be set as False. However, for consistency, `PostProcess` class must be initialized, and only data cube files will be saved.  
 
-Note:  
-Currently, we only upload throughputs and PSFs for CSST, and other surveys will be added later. (Nov. 14, 2024)  
+Currently, throughputs and PSFs of filters for CSST, HST, JWST and Roman are all uploaded. For Euclid, we only upload the throughputs, since the PSF files cannot be found. (Nov 30, 2024)  
 
 ### Run
 Enter workspace, and create a python file named emulator.py
