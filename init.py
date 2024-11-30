@@ -23,6 +23,6 @@ os.makedirs(f'{workspace}',exist_ok=True)
 os.chdir(f'{workspace}')
 
 configuration = Configuration(surveys=surveys)
-conf = configuration.init()
+configuration.init()
 
 print(f'Configuration files are created in {workspace}. Please edit them!')

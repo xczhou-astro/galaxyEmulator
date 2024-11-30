@@ -272,7 +272,7 @@ class Configuration:
                 filename = os.path.join(directory, f'config_{survey}.ini')
                 with open(filename, 'w') as f:
                     for key in keys_survey:
-                        key_strip = key.strip(f'_{survey}')
+                        key_strip = key.split(f'_{survey}')[0]
                         f.write(key_strip + ' = ' + str(self.config[key]))
                         f.write('\n')
                         keys.remove(key)
