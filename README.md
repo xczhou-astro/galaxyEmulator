@@ -7,7 +7,7 @@ Python verison:
 `python==3.11.10`  
 
 Python packages:  
-`numpy==1.24.0` [!NOTE]  
+`numpy==1.24.0` >[!NOTE]  
 `scipy==1.13.1`  
 `matplotlib==3.9.2`  
 `astropy==7.0.0` (Strict)  
