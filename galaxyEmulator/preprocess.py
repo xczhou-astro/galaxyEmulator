@@ -264,7 +264,7 @@ class PreProcess:
                 
                 elif self.config['DISMModel'] == 'Torrey_2012':
                     # Density from (10^10 Msun/h) / (ckpc/h)^3 to 10^10 h^2 Msun / kpc^3
-                    density = gasPart['Density'] * self.a**3
+                    density = gasPart['Density'] * self.a**-3
                     othermask = np.where(np.log10(gasPart['Temperature']) < (6 + 0.25 * np.log10(density)))[0]
                     mask = np.intersect1d(spatialmask, othermask)
                     size = mask.shape[0]
