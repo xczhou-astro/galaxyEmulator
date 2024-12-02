@@ -6,7 +6,7 @@ from PIL import Image
 import sys
 import os
 import shutil
-import logging
+from astropy.visualization import make_lupton_rgb
 
 def u2temp(u_energy, x_e):
     '''
@@ -127,7 +127,7 @@ class channel_RGB(object):
         x = x*255
         self.imgRGB = Image.fromarray(x.astype(np.uint8))
 
-def convert_to_rgb(bandpassImage, idx=[2, 3, 5]):
+def convert_to_rgb_humVI(bandpassImage, idx=[2, 3, 5]):
     
     '''
     bandpassImage: image in several bands
@@ -165,7 +165,18 @@ def convert_to_rgb(bandpassImage, idx=[2, 3, 5]):
     object_RGB.pack_up()
 
     return object_RGB.imgRGB
-        
+
+def convert_to_rgb(bandpassImage, idx=[2, 3, 5]):
+    
+    # RGB -- long -> short wavelength
+    img_red = bandpassImage[idx[2]]
+    img_green = bandpassImage[idx[1]]
+    img_blue = bandpassImage[idx[0]]
+    
+    rgb = make_lupton_rgb(img_red, img_green, img_blue, 
+                          stretch=5, Q=8)
+    
+    return rgb
         
 def split(string, castType=None):
     splits = [inc for inc in "".join(string.split()).split(',')]
