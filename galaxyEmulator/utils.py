@@ -169,6 +169,9 @@ def convert_to_rgb_humVI(bandpassImage, idx=[2, 3, 5]):
 def convert_to_rgb(bandpassImage, idx=[2, 3, 5]):
     
     # RGB -- long -> short wavelength
+
+    bandpassImage = np.array(bandpassImage)
+
     img_red = bandpassImage[idx[2]]
     img_green = bandpassImage[idx[1]]
     img_blue = bandpassImage[idx[0]]

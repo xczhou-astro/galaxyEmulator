@@ -249,7 +249,7 @@ class PostProcess:
             for count in range(self.properties['numViews']):
                 header[f'INCLI_{count:02d}'] = (self.properties['inclinations'][count], 
                                                 f'Inclination angle, in deg for view {count}')
-                header[f'AZIMUTH_{count:02d}'] = (self.properties['azimuths'][count], 
+                header[f'AZIMU_{count:02d}'] = (self.properties['azimuths'][count], 
                                                   f'Azimuth angle, in deg for view {count}')
             header['FILTER'] = (self.properties[f'filters_{survey}'][i], 'Filter')
             header['UNIT'] = (imageUnit, imageUnitComment)
@@ -258,9 +258,10 @@ class PostProcess:
             header['lumiDis'] = (self.properties['lumiDis'], 'Luminosity distance, in Mpc')
             header['PS'] = (self.properties[f'angleRes_{survey}'][i], 'Pixel scale, in arcsec')
 
-            images = np.array(images[0][i])
+            imgs_in_view = [images[nv][i] for nv in self.properties['numViews']]
+            imgs_in_view = np.stack(imgs_in_view, axis=0)
 
-            hdu = fits.ImageHDU(data=images, header=header)
+            hdu = fits.ImageHDU(data=imgs_in_view, header=header)
             hdulist.append(hdu)
 
 
@@ -323,10 +324,12 @@ class PostProcess:
 
     def __plot_image(self, image, res, savedFilename=None):
 
-        if isinstance(image, Image.Image):
-            pixels = np.array(image).shape[0]
-        else:
-            pixels = image.shape[0]
+        # if isinstance(image, Image.Image):
+        #     pixels = np.array(image).shape[0]
+        # else:
+        #     pixels = np.array(image).shape[0]
+
+        pixels = np.array(image).shape[0]
         
         z = str(np.around(self.properties['redshift'], 2))
         
