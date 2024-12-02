@@ -6,7 +6,7 @@ from PIL import Image
 import sys
 import os
 import shutil
-from astropy.visualization import make_lupton_rgb
+from astropy.visualization import ManualInterval, LogStretch, make_rgb
 
 def u2temp(u_energy, x_e):
     '''
@@ -173,8 +173,15 @@ def convert_to_rgb(bandpassImage, idx=[2, 3, 5]):
     img_green = bandpassImage[idx[1]]
     img_blue = bandpassImage[idx[0]]
     
-    rgb = make_lupton_rgb(img_red, img_green, img_blue, 
-                          stretch=5, Q=8)
+    pctl = 99.5
+    maxv = 0
+    for img in [img_red, img_green, img_blue]:
+        val = np.percentile(img, pctl)
+        if val > maxv:
+            maxv = val
+
+    rgb = make_rgb(img_red, img_green, img_blue, interval=ManualInterval(vmin=0, vmax=maxv),
+                   stretch=LogStretch(a=1000)) 
     
     return rgb
         

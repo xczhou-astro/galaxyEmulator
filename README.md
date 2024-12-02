@@ -7,16 +7,16 @@ Python verison:
 `python==3.11.10`  
 
 Python packages:  
-`numpy==1.26.4`  
+`numpy==1.24.0` (Strict)  
 `scipy==1.13.1`  
 `matplotlib==3.9.2`  
-`astropy==5.3`  
+`astropy==7.0.0` (Strict)  
 `skimage==0.24.0`  
 `joblib==1.4.2`  
 `matplotlib_scalebar==0.8.1`  
-`h5py==3.9.0`  
+`h5py==3.9.0` (Strict)  
 `termcolor==2.4.0`  
-`photutils==2.0.2`
+`photutils==2.0.2`  
 
 Other packages:  
 [`illustris_python`](https://github.com/illustristng/illustris_python)  

@@ -187,19 +187,23 @@ class PostProcess:
             
             bandpass_images = images_with_bkg
                 
-        bandpass_images = np.array(bandpass_images)
+        # bandpass_images = bandpass_images
 
         if self.config['imageUnit'] == 'electron':
-            bandpass_images = bandpass_images
+            images_in_unit = bandpass_images
         elif self.config['imageUnit'] == 'flux':
+            images_in_unit = []
             for i, img in enumerate(bandpass_images):
                 img = img * conversion_to_Jy[i]
+                images_in_unit.append(img)
         elif self.config['imageUnit'] == 'magnitude':
+            images_in_unit = []
             for i, img in enumerate(bandpass_images):
                 img = img * conversion_to_Jy[i]
                 img = -2.5 * np.log10(img + 1e-10) + 8.90
+                images_in_unit.append(img)
         
-        return bandpass_images
+        return images_in_unit
     
     def __saveDataCube(self):
         numViews = np.int32(self.config['numViews'])
@@ -215,7 +219,7 @@ class PostProcess:
             
     def __saveBandpassImages(self, images, survey):
 
-        shape = images[0].shape
+        # images are in [numViews, [numfilters, [numPixels, numPixels]]]
 
         hdulist = fits.HDUList()
         primary_hdu = fits.PrimaryHDU()
@@ -233,33 +237,60 @@ class PostProcess:
         imageUnit = unit_dict[unit_type]
         imageUnitComment = unit_comment_dict[unit_type]
         
-        for i in range(self.properties['numViews']):
+        for i in range(numfilters):
             header = fits.Header()
-            header['NAXIS'] = (3, 'number of data axes')
-            header['NAXIS1'] = (shape[0], 'length of data axis 1')
-            header['NAXIS2'] = (shape[1], 'length of data axis 2')
-            header['NAXIS3'] = (shape[2], 'length of data axis 3')
-            header['snapNum'] = (self.config['snapNum'], 'snapshot ID of IllustrisTNG')
+            header['NAXIS'] = (numfilters, 'Number of data axes')
+            header['NAXIS1'] = (self.properties['numViews'], 'Length of data axis 1')
+            header['NAXIS2'] = (images[0][i].shape[0], 'Length of data axis 2')
+            header['NAXIS3'] = (images[0][i].shape[1], 'Length of data axis 3')
+            header['SNAPNUM'] = (self.config['snapNum'], 'Snapshot ID of IllustrisTNG')
             header['SURVEY'] = (survey, 'Survey')
-            header['NFILTERS'] = (numfilters, 'Number of filters')
+            header['NUMVIEWS'] = (self.properties['numViews'], 'Number of views')
+            for count in range(self.properties['numViews']):
+                header[f'INCLI_{count:02d}'] = (self.properties['inclinations'][count], 
+                                                f'Inclination angle, in deg for view {count}')
+                header[f'AZIMUTH_{count:02d}'] = (self.properties['azimuths'][count], 
+                                                  f'Azimuth angle, in deg for view {count}')
+            header['FILTER'] = (self.properties[f'filters_{survey}'][i], 'Filter')
             header['UNIT'] = (imageUnit, imageUnitComment)
-            header['INCLI'] = (self.properties['inclinations'][i], 'Inclination angle, in deg')
-            header['AZIMUTH'] = (self.properties['azimuths'][i], 'Azimuth angle, in deg')
             header['REDSHIFT'] = (self.properties['redshift'], 'Redshift')
             header['FoV'] = (self.properties['FoV'], 'Field of view, in pc')
             header['lumiDis'] = (self.properties['lumiDis'], 'Luminosity distance, in Mpc')
-            for count in range(numfilters):
-                header[f'FILT_{count:02d}'] = (self.properties[f'filters_{survey}'][count],
-                                                f'filter_{count:02d} for index {count}')
-            for count in range(numfilters):
-                header[f'RES_{count:02d}'] = (self.properties[f'resolution_{survey}'][count], 
-                                                f'Pixel scale, in pc for index {count}')
-            for count in range(numfilters):
-                header[f'PS_{count:02d}'] = (self.properties[f'angleRes_{survey}'][count],
-                                                f'Pixel scale, in arcsec for index {count}')
-                
-            hdu = fits.ImageHDU(data=images[i], header=header)
+            header['PS'] = (self.properties[f'angleRes_{survey}'][i], 'Pixel scale, in arcsec')
+
+            images = np.array(images[0][i])
+
+            hdu = fits.ImageHDU(data=images, header=header)
             hdulist.append(hdu)
+
+
+        # for i in range(self.properties['numViews']):
+        #     header = fits.Header()
+        #     header['NAXIS'] = (3, 'number of data axes')
+        #     header['NAXIS1'] = (shape[0], 'length of data axis 1')
+        #     header['NAXIS2'] = (shape[1], 'length of data axis 2')
+        #     header['NAXIS3'] = (shape[2], 'length of data axis 3')
+        #     header['snapNum'] = (self.config['snapNum'], 'snapshot ID of IllustrisTNG')
+        #     header['SURVEY'] = (survey, 'Survey')
+        #     header['NFILTERS'] = (numfilters, 'Number of filters')
+        #     header['UNIT'] = (imageUnit, imageUnitComment)
+        #     header['INCLI'] = (self.properties['inclinations'][i], 'Inclination angle, in deg')
+        #     header['AZIMUTH'] = (self.properties['azimuths'][i], 'Azimuth angle, in deg')
+        #     header['REDSHIFT'] = (self.properties['redshift'], 'Redshift')
+        #     header['FoV'] = (self.properties['FoV'], 'Field of view, in pc')
+        #     header['lumiDis'] = (self.properties['lumiDis'], 'Luminosity distance, in Mpc')
+        #     for count in range(numfilters):
+        #         header[f'FILT_{count:02d}'] = (self.properties[f'filters_{survey}'][count],
+        #                                         f'filter_{count:02d} for index {count}')
+        #     for count in range(numfilters):
+        #         header[f'RES_{count:02d}'] = (self.properties[f'resolution_{survey}'][count], 
+        #                                         f'Pixel scale, in pc for index {count}')
+        #     for count in range(numfilters):
+        #         header[f'PS_{count:02d}'] = (self.properties[f'angleRes_{survey}'][count],
+        #                                         f'Pixel scale, in arcsec for index {count}')
+                
+            # hdu = fits.ImageHDU(data=images[i], header=header)
+            # hdulist.append(hdu)
             
         savedImageName = f'mock_{survey}/Subhalo_{self.subhaloID}/galaxy_image.fits'
         hdulist.writeto(savedImageName, overwrite=True)
@@ -348,7 +379,7 @@ class PostProcess:
             plt.show()
         
     def __show_images(self, imgFilenames, SEDFilenames, 
-                      subhaloID):
+                      subhaloID, survey):
         
         for i, (imgname, sedname) in enumerate(zip(imgFilenames, SEDFilenames)):
             img = Image.open(imgname)
@@ -368,7 +399,7 @@ class PostProcess:
             fig, ax = plt.subplots()
             ax.axis('off')
             plt.imshow(combined_img)
-            plt.suptitle(f'SubhaloID: {subhaloID} (View {i:02d})', 
+            plt.suptitle(f'SubhaloID: {subhaloID} ({survey} View {i:02d})', 
                          fontsize=12, y=0.7)
             plt.show()
 
@@ -462,7 +493,7 @@ class PostProcess:
                                     for i in range(self.properties['numViews'])]
                     sedFilenames = [f'mock_{survey}/Subhalo_{self.subhaloID}/galaxy_SED_view_{i:02d}.png' 
                                     for i in range(self.properties['numViews'])]
-                    self.__show_images(imgFilenames, sedFilenames, self.subhaloID)
+                    self.__show_images(imgFilenames, sedFilenames, self.subhaloID, survey)
                 
             if self.config['saveDataCube']:
                 self.__saveDataCube()
