@@ -215,7 +215,13 @@ postprocess.runPostProcess(showImages=False)
 `float`, Considered wavelength range in rest frame, in micron; `maxWavelength` should be higher than maximum wavelength of filters considered.  
 
 `smoothLengthFromNeigbors`:  
-`bool`, If smoothing length are derived from neigbors as illustrated in [Baes et al. 2024](https://www.aanda.org/articles/aa/full_html/2024/03/aa48418-23/aa48418-23.html)
+`bool`, If smoothing length are derived from neigbors as illustrated in [Baes et al. 2024](https://www.aanda.org/articles/aa/full_html/2024/03/aa48418-23/aa48418-23.html).  
+
+`NthNeigbor`:  
+`int`, Nth nearest neighbor for smoothing length, if smoothLengthFromNeighbors is True.  
+
+`maxSmoothingLength`:  
+`float`, maximum smoothing length, if smoothLengthFromNeighbors is True, in kpc.  
 
 `boxLengthScale`:  
 `float`, Determine the boxsize to retrieve particles;  
@@ -233,7 +239,7 @@ postprocess.runPostProcess(showImages=False)
 `int`: Octree min/max level refinement for dust calculation.  
 
 `numPackets`:  
-`float`: number of photo packets launched during simulation; determine the level of signal to noise in the results.  
+`float`: number of photon packets launched during simulation; determine the level of signal to noise in the results.  
 
 `SEDFamily`:  
 `str`, `BC03` or `FSPS`, SED family for quenched star particles.  
@@ -265,6 +271,9 @@ postprocess.runPostProcess(showImages=False)
 `spatialResol`:  
 `float`, Spatial resolution for data cube, in pc; must be provided if `postProcessing=False`.  
 
+`imageUnit`:  
+`str`, `electron`, `flux` or `magnitude`, unit type of image output.  
+
 `surveys`:  
 `str (N,)`, Considered surveys; must be provided if `postProcessing=True`.  
 
@@ -290,22 +299,28 @@ postprocess.runPostProcess(showImages=False)
 `float`, Age threshold for discriminating star-forming and quenched star particles, in Myr.  
 
 `logCompactnessMean`, `logCompactnessStd`:  
-`float`,  logCompactness for star-forming particles, sampled from normal distribution.  
+`float`,  logCompactness for star-forming particles, sampled from normal distribution, see [Kapoor et al. 2021](https://academic.oup.com/mnras/article/506/4/5703/6324023).  
 
 `logPressure`:  
 `float`, `log10[(Pressure/k_B)/cm^-3 K] = logPressure` for star-forming particles.  
 
+`constantCoveringFactor`:  
+`bool`, If use constant covering factor.  
+
+`coveringFactor`:  
+`float`, constant covering factor, if `constantCoveringFactor=True`, see [Groves et al. 2008](https://iopscience.iop.org/article/10.1086/528711).  
+
 `PDRClearingTimescale`:  
-`float`, covering factor is `f = e^(-t / PDRClearingTimescale)`, where t is the age.  
+`float`, covering factor is `f = e^(-t / PDRClearingTimescale)`, where t is the age, if `constantCoveringFactor=False`, see [Baes et al. 2024](https://www.aanda.org/articles/aa/full_html/2024/03/aa48418-23/aa48418-23.html).  
+
+`DISMModel`:  
+`str`, `Camps_2016` or `Torrey_2012`, dust-containing ISM (DISM) model, see [Camps et al. 2016](https://academic.oup.com/mnras/article/462/1/1057/2589990) and [Torrey et al. 2012](https://academic.oup.com/mnras/article/427/3/2224/1099996).  
 
 `temperatureThreshold`:  
-`float`, Gas particles lower than `temperatureThreshold` will be considered as dusts.  
+`float`, Gas particles lower than `temperatureThreshold` will be considered as dusts, for `DISMModel=Camps_2016`.  
 
 `massFraction`:  
 `float`, Fraction of the metallic gas locked up in dust.  
-
-`DISMModel`:  
-`str`, `Camps_2016` or `Torrey_2012`, dust-containing ISM (DISM) model.  
 
 `numSilicateSizes`, `numGraphiteSizes`, `numPAHSizes`, `numHydrocarbonSizes`:  
 `int`, Number of bins for dust grains.  
@@ -354,8 +369,8 @@ Config_\[survey\].ini is generated if `postProcessing=True` and `surveys` are pr
 
 `RGBImg`:  
 `bool`, If display rgb image created by 3 bands.  
-RGB composition by [HumVI](https://github.com/drphilmarshall/HumVI), please use with caution.  
-For better illustration, several parameters need to be adjusted in `galaxyEmulator.utils.convert_to_rgb`.  
+RGB image is created from `astropy.visualization.make_rgb`, a new feature added in version 7.0.0.  
+The RGB image may not be as one expected, feel free to edit the `convert_to_rgb` function in `utils.py`.  
 
 `RGBFilters`:  
 `str (3,)`, 3 bands to create rgb image.  
