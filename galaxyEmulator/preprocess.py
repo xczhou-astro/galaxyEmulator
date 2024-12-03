@@ -94,7 +94,10 @@ class PreProcess:
         print(f'Stellar Mass of Subhalo {self.id} is 10^{mass_in_10} [M_sun].')
         
     def __get_TNG(self):
-        tng = self.config['filePath'].split('/')[-1]
+        filePath = self.config['filePath']
+        if filePath.endswith('/'):
+            filePath = '/'.join(filePath.split('/')[:-1])
+        tng = filePath.split('/')[-1]
         return tng
 
     def __get_particles(self):
