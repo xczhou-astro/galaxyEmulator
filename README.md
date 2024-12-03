@@ -187,7 +187,7 @@ postprocess = PostProcess(properties, config)
 ```Python
 postprocess.runPostProcess(showImages=False)
 ```  
-`showImages`: `bool`: if show galaxy images and SEDs. Run postprocessing for galaxy simulation.  
+`showImages`: `bool`: if show galaxy images and SEDs, should be used in Notebooks. Run postprocessing for galaxy simulation.  
 
 ## Config.ini
 `dataDir`:  
@@ -200,7 +200,7 @@ postprocess.runPostProcess(showImages=False)
 `str`, Directory for execution of SKIRT.  
 
 `simulationMode`:  
-`str`, `ExtinctionOnly` or `DustEmission`, Simulation Mode, `DustEmission` should be used when near- or mid-infrared bands are considered.  
+`str`, `ExtinctionOnly` or `DustEmission`, Simulation Mode, `DustEmission` should be used when mid-infrared or far-infrared bands are considered.  
 
 `includeDust`:  
 `bool`, If include dusts generated from Gas particles; must be True if `simulationMode=DustEmission`  
@@ -212,7 +212,10 @@ postprocess.runPostProcess(showImages=False)
 `str`, `ZubkoDustMix`, `DraineLiDustMix` or `ThemisDustMix`, Dust model.  
 
 `minWavelength`, `maxWavelength`:  
-`float`, Considered wavelength range, in micron; `maxWavelength` should be higher than maximum wavelength of filters considered.  
+`float`, Considered wavelength range in rest frame, in micron; `maxWavelength` should be higher than maximum wavelength of filters considered.  
+
+`smoothLengthFromNeigbors`:  
+`bool`, If smoothing length are derived from neigbors as illustrated in [Baes et al. 2024](https://www.aanda.org/articles/aa/full_html/2024/03/aa48418-23/aa48418-23.html)
 
 `boxLengthScale`:  
 `float`, Determine the boxsize to retrieve particles;  
