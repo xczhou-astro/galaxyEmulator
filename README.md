@@ -97,7 +97,7 @@ for ID in subhaloIDs:
 then, `python emulator.py`.  
 
 Or you can interactively run by specifying the subhaloIDs in jupyter as illustrated in [Notebooks/tutorial.ipynb](https://github.com/xczhou-astro/galaxyEmulator/blob/main/Notebooks/tutorial.ipynb).  
-## Outputs
+### Outputs
 `./dataCubes` are the dataCubes of **SubhaloID** generated from SKIRT, if `saveDataCube == True`  
 `./mock_CSST` are the bandpass images of **SubhaloID** for CSST  
 `./mock_HST` are the bandpass images of **SubhaloID** for HST  
