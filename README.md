@@ -58,9 +58,9 @@ Please use with caution.
 ## Usage
 ### Initialization
 ```Python
-python init.py --workspace=workspace --surveys="CSST,JWST"
+python init.py --workspace=workspace --surveys="CSST,HST"
 ```
-`config.ini`, `config_CSST.ini` and `config_JWST.ini` will be created in `workspace` directory. Please freely edit them as wish.  
+`config.ini`, `config_CSST.ini` and `config_HST.ini` will be created in `workspace` directory. Please freely edit them as wish.  
 
 if `surveys` are not specified, `postPostprocessing` will be set as False. However, for consistency, `PostProcess` class must be initialized, and only data cube files will be saved.  
 
