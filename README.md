@@ -64,7 +64,7 @@ python init.py --workspace=workspace --surveys="CSST,JWST"
 
 if `surveys` are not specified, `postPostprocessing` will be set as False. However, for consistency, `PostProcess` class must be initialized, and only data cube files will be saved.  
 
-Currently, throughputs and PSFs of filters for CSST, HST, JWST and Roman are all uploaded. For Euclid, we only upload the throughputs, since the PSF files cannot be found. (Nov 30, 2024)  
+Currently, throughputs and PSFs of filters for CSST, HST, JWST, Roman and HSC are all uploaded. For Euclid, we only upload the throughputs, since the PSF files cannot be found. (Nov 30, 2024)  
 
 ### Run
 Enter workspace, and create a python file named emulator.py
@@ -97,6 +97,27 @@ for ID in subhaloIDs:
 then, `python emulator.py`.  
 
 Or you can interactively run by specifying the subhaloIDs in jupyter as illustrated in [Notebooks/tutorial.ipynb](https://github.com/xczhou-astro/galaxyEmulator/blob/main/Notebooks/tutorial.ipynb).  
+## Outputs
+`./dataCubes` are the dataCubes of **SubhaloID** generated from SKIRT, if `saveDataCube == True`  
+`./mock_CSST` are the bandpass images of **SubhaloID** for CSST  
+`./mock_HST` are the bandpass images of **SubhaloID** for HST  
+
+Folder tree:
+```bash
+mock_{survey}/
+└── Subhalo_{ID}/
+    ├── dusts.txt # File for dust particles
+    ├── galaxy_image.fits # Bandpass images
+    ├── galaxy_SED_view_{v}.png # SED in different views, if displaySED == True
+    ├── galaxy_SED.fits # SEDs
+    ├── galaxy_view_{v}.png # Images in different views, if imgDisplay_{survey} == True
+    ├── quenched_stars.txt # File for stars older than 10 Myr
+    ├── skirt_parameters.xml # SKIRT parameters
+    └── starforming_stars.txt # File for stars younger than 10 Myr
+```
+
+Bandpass images are saved in pages of fits file, and each page includes images in different views.
+
 ## Classes
 ### Configuration
 ```Python

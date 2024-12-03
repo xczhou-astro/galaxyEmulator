@@ -280,9 +280,9 @@ class PostProcess:
             shape = sed.shape
             
             header = fits.Header()
-            header['NAXIS'] = (2, 'number of data axes')
-            header['NAXIS1'] = (shape[0], 'length of data axis 1')
-            header['NAXIS2'] = (shape[1], 'length of data axis 2')
+            # header['NAXIS'] = (2, 'number of data axes')
+            # header['NAXIS1'] = (shape[0], 'length of data axis 1')
+            # header['NAXIS2'] = (shape[1], 'length of data axis 2')
             header['WUNIT'] = ('micron', 'Units of wavelength')
             header['FUNIT'] = ('Jy', 'Units of flux in F_nu')
             header['INCLI'] = (self.properties['inclinations'][i], 'Inclination angle, in deg')
