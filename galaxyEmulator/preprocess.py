@@ -150,7 +150,8 @@ class PreProcess:
             else:
                 starPart[key] = starPart[key][mask] # select stellar particles instead of wind
         
-        starPart['age'] = fage(self.snapz) - fage(1/starPart['GFM_StellarFormationTime'] - 1) # in Myr
+        snapshot_age = fage(self.snapz)
+        starPart['age'] = snapshot_age - fage(1/starPart['GFM_StellarFormationTime'] - 1) # in Myr
         g = Galaxy(starPart['Coordinates'], starPart['smoothLength'], starPart['GFM_InitialMass'],
                    self.pos, a=self.a, h=self.h)
 
