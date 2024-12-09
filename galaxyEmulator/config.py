@@ -145,6 +145,8 @@ class Configuration:
             survey_config = self.__for_Euclid(survey_config)
         elif survey == 'Roman':
             survey_config = self.__for_Roman(survey_config)
+        elif survey == 'HSC':
+            survey_config = self.__for_HSC(survey_config)
         elif survey == 'CSST':
             survey_config = survey_config
             # more elif to include the ground based survey
@@ -168,6 +170,22 @@ class Configuration:
         survey_config[f'displayFilter_{survey}'] = 'UV_F814W'
         
         return survey_config
+    
+    def __for_HSC(self, survey_config):
+        survey = 'HSC'
+        survey_config[f'filters_{survey}'] = 'g,r,i,z,y'
+        survey_config[f'resolFromPix_{survey}'] = True
+        survey_config[f'pixelScales_{survey}'] = '0.168'
+        survey_config[f'numExposure_{survey}'] = '1'
+        survey_config[f'exposureTime_{survey}'] = '600'
+        survey_config[f'aperture_{survey}'] = '8.5'
+        survey_config[f'bkgNoise_{survey}'] = '173.23,218.88,234.74,253.66,345.2'
+        survey_config[f'RGBImg_{survey}'] = True
+        survey_config[f'RGBFilters_{survey}'] = 'g,r,z'
+        survey_config[f'displayFilter_{survey}'] = ''
+        
+        return survey_config
+
     
     def __for_JWST(self, survey_config):
         survey = 'JWST'
