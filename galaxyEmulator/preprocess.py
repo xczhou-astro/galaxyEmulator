@@ -317,6 +317,7 @@ class PreProcess:
     def __get_properties(self, z):
         properties = {}
         properties['subhaloID'] = self.id
+        properties['subhaloMass'] = np.log10(self.mass)
         properties['redshift'] = z
         distance = self.cosmology.luminosity_distance(z).value
         properties['lumiDis'] = distance
