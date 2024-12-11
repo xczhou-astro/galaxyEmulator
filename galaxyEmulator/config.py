@@ -464,7 +464,7 @@ class Configuration:
                         self.flag_count += 1
                         
         imageUnit = self.__exist_return('imageUnit')
-        if (imageUnit != 'electron') & (imageUnit != 'flux') & (imageUnit != 'magnitude'):
+        if (imageUnit != 'electron') & (imageUnit != 'flux'):
             self.__issue('imageUnit unrecognized.')
             self.flag_count += 1
                         
@@ -538,9 +538,10 @@ class Configuration:
                                         self.flag_count += 1
                             
                             if self.__exist_return(f'includeBkg_{survey}'):
-                                bkgNoise = self.__exist_return(f'bkgNoise_{survey}')
-                                if bkgNoise:
-                                    self.__match(f'filters_{survey}', f'bkgNoise_{survey}')
+                                self.__exist(f'gaussianNoise')
+                                self.__match(f'filters_{survey}', f'skyBkg_{survey}', True)
+                                self.__match(f'filters_{survey}', f'darkCurrent_{survey}', True)
+                                self.__match(f'filters_{survey}', f'readOut_{survey}', True)
                             
                             if self.__exist_return(f'imgDisplay_{survey}'):
                                 if self.__exist_return(f'RGBImg_{survey}'):
