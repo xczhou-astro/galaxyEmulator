@@ -50,9 +50,9 @@ The format of filters are recommended to be plain text file with extension `.fil
 PSFs are recommended to be `numpy.array`, and can be opened by `numpy.loadtxt` or `numpy.load`.  
 Please make sure that the filters and PSFs exist in correct directories and formats before running galaxyEmulator.
 
-## Instrumental Noise
+## Sky backgrounds  
 Instrumental noises are calculated based on the throughput of each filter and sky emission curve.  
-We provide a helper notebook for calculation of instrumental noises in [Notebooks/calc_bkg.ipynb](https://github.com/xczhou-astro/galaxyEmulator/blob/main/Notebooks/calc_bkg.ipynb).  
+We provide a helper notebook for calculation of instrumental noises in [Notebooks/calc_sky_bkg.ipynb](https://github.com/xczhou-astro/galaxyEmulator/blob/main/Notebooks/calc_sky_bkg.ipynb).  
 Please use with caution.  
 
 ## Usage
@@ -361,8 +361,12 @@ Config_\[survey\].ini is generated if `postProcessing=True` and `surveys` are pr
 `includeBkg`:  
 `bool`, If include background; can be True if `resolFromPix=True`, otherwise must be False.  
 
-`bkgNoise`:  
-`float (N,)`, Sigmas for Gaussian background for each filter.  
+`gaussianNoise`:  
+`bool`, if add instrumental noise as Gaussian distribution.  
+
+`skyBkg`, `darkCurrent`, `readOut`:  
+`float (N,)` or `float (1,)`: sky backgrounds, dark currents, and read-out noise, required for calculating instrumental noise.  
+Please refer to notebook [Notebooks/calc_sky_bkg.ipynb](https://github.com/xczhou-astro/galaxyEmulator/blob/main/Notebooks/calc_sky_bkg.ipynb) for calculating `skyBkg`.  
 
 `imgDisplay`:  
 `bool`, If display galaxy images.  
