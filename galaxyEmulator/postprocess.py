@@ -87,8 +87,8 @@ class PostProcess:
             
             PSFs = []
             for std in stds:
-                size = std * 10
-                if std % 2 == 0: # make sure the size is odd
+                size = std * 11
+                if size % 2 == 0: # make sure the size is odd
                     size += 1
                 kernel = make_2dgaussian_kernel(std, size)
                 PSFs.append(kernel)
