@@ -164,10 +164,12 @@ class Configuration:
         survey_config[f'numExposure_{survey}'] = '1'
         survey_config[f'exposureTime_{survey}'] = '600'
         survey_config[f'aperture_{survey}'] = '2.4'
-        survey_config[f'bkgNoise_{survey}'] = '3.22,4.58,6.62,40.42,42.65'
         survey_config[f'RGBImg_{survey}'] = False
         survey_config[f'RGBFilters_{survey}'] = ''
         survey_config[f'displayFilter_{survey}'] = 'UV_F814W'
+        survey_config[f'skyBkg_{survey}'] = '0.0004,0.0181,0.0562,1.9397.2.2485'
+        survey_config[f'darkCurrent_{survey}'] = '0.0008,0.0008,0.0008,0.048,0.048'
+        survey_config[f'readOut_{survey}'] = '3.1,3.1,3.1,21,21'
         
         return survey_config
     
@@ -179,10 +181,12 @@ class Configuration:
         survey_config[f'numExposure_{survey}'] = '1'
         survey_config[f'exposureTime_{survey}'] = '600'
         survey_config[f'aperture_{survey}'] = '8.5'
-        survey_config[f'bkgNoise_{survey}'] = '173.23,218.88,234.74,253.66,345.2'
         survey_config[f'RGBImg_{survey}'] = True
         survey_config[f'RGBFilters_{survey}'] = 'g,r,z'
         survey_config[f'displayFilter_{survey}'] = ''
+        survey_config[f'skyBkg_{survey}'] = '49.983,79.8137,91.8011,107.205,198.5708'
+        survey_config[f'darkCurrent_{survey}'] = '0'
+        survey_config[f'readOut_{survey}'] = '4.5'
         
         return survey_config
 
@@ -195,10 +199,12 @@ class Configuration:
         survey_config[f'numExposure_{survey}'] = '1'
         survey_config[f'exposureTime_{survey}'] = '600'
         survey_config[f'aperture_{survey}'] = '6.5'
-        survey_config[f'bkgNoise_{survey}'] = '29.98,46.41,21.17,23.09,22.57,20.00'
         survey_config[f'RGBImg_{survey}'] = False
         survey_config[f'RGBFilters_{survey}'] = ''
         survey_config[f'displayFilter_{survey}'] = 'F200W'
+        survey_config[f'skyBkg_{survey}'] = '1.1707,3.2627,0.3307,0.4721,0.4326,0.2502'
+        survey_config[f'darkCurrent_{survey}'] = '0.0342,0.0342,0.0019,0.0019,0.0019,0.0019'
+        survey_config[f'readOut_{survey}'] = '13.25,13.25,15.77,15.77,15.77,15.77'
         
         return survey_config
     
@@ -212,10 +218,12 @@ class Configuration:
         survey_config[f'aperture_{survey}'] = '1.2'
         survey_config[f'PSFFromFile_{survey}'] = False
         survey_config[f'PSFFWHM_{survey}'] = '0.204,0.493,0.515,0.553'
-        survey_config[f'bkgNoise_{survey}'] = '20.92,47.54,52.17,48.39'
         survey_config[f'RGBImg_{survey}'] = False
         survey_config[f'RGBFilters_{survey}'] = ''
         survey_config[f'displayFilter_{survey}'] = 'VIS'
+        survey_config[f'skyBkg_{survey}'] = '0.7162,3.6863,4.4556,3.8228'
+        survey_config[f'darkCurrent_{survey}'] = '0.005,0.02,0.02,0.02'
+        survey_config[f'readOut_{survey}'] = '2.2,6,6,6'
         
         return survey_config
         
@@ -227,10 +235,12 @@ class Configuration:
         survey_config[f'numExposure_{survey}'] = '1'
         survey_config[f'exposureTime_{survey}'] = '600'
         survey_config[f'aperture_{survey}'] = '2.36'
-        survey_config[f'bkgNoise_{survey}'] = '38.03,36.96,37.81,37.9,37.71,32.12,30.67,58.1'
         survey_config[f'RGBImg_{survey}'] = False
         survey_config[f'RGBFilters_{survey}'] = ''
         survey_config[f'displayFilter_{survey}'] = 'F106'
+        survey_config[f'skyBkg_{survey}'] = '7.1684,6.6275,7.0874,7.1373,7.0349,4.1791,3.515,21.3173'
+        survey_config[f'darkCurrent_{survey}'] = '0.1'
+        survey_config[f'readOut_{survey}'] = '20'
         
         return survey_config
 
