@@ -179,11 +179,30 @@ class PostProcess:
 
         # add instrumental noise 
         if bkgNoise is not None:
-            images_with_bkg = []
-            for i, img in enumerate(bandpass_images):
-                noise = np.random.normal(loc=0, scale=bkgNoise[i],
-                                        size=img.shape)
-                images_with_bkg.append(img + noise)
+            skyBkg = np.array(bkgNoise['skyBkg'])
+            darkCurrent = np.array(bkgNoise['darkCurrent'])
+            readOut = np.array(bkgNoise['readOut'])
+            exposureTime = np.array(bkgNoise['exposureTime'])
+            numExposure = np.array(bkgNoise['numExposure'])
+            
+            if bkgNoise['noiseType'] == 'Gaussian':
+                std = np.sqrt((skyBkg + darkCurrent)*exposureTime*numExposure + readOut**2*numExposure)
+                images_with_bkg = []
+                for i, img in enumerate(bandpass_images):
+                    noise = np.random.normal(loc=0, scale=std[i], size=img.shape)
+                    images_with_bkg.append(img + noise)
+                    
+            elif bkgNoise['noiseType'] == 'Poisson':
+                for i, img in enumerate(bandpass_images):
+                    mean = (skyBkg[i] + darkCurrent[i])*exposureTime[i]*numExposure[i]
+                    img = img + mean
+                    img = np.random.poisson(img).astype(np.int32)
+                    for _ in range(numExposure[i]):
+                        readnoise = np.random.normal(loc=0, scale=readOut[i], size=img.shape)
+                        readnoise = np.around(readnoise, 0).astype(np.int32)
+                        img = img + readnoise
+                    img = img.astype(np.float32) - mean.astype(np.float32)
+                    images_with_bkg.append(img)
             
             bandpass_images = images_with_bkg
                 
@@ -412,7 +431,26 @@ class PostProcess:
 
                 bkgNoise = None
                 if self.config[f'includeBkg_{survey}']:
-                    bkgNoise = split(self.config[f'bkgNoise_{survey}'], float)
+                    
+                    bkgNoise = {}
+                    skyBkg = split(self.config[f'skyBkg_{survey}'], float)
+                    darkCurrent = split(self.config[f'darkCurrent_{survey}'], float)
+                    readOut = split(self.config[f'readOut_{survey}'], float)
+                    
+                    skyBkg = extend(skyBkg, len(filters))
+                    darkCurrent = extend(darkCurrent, len(filters))
+                    readOut = extend(readOut, len(filters))
+                    
+                    bkgNoise = {'skyBkg': skyBkg,
+                                'darkCurrent': darkCurrent,
+                                'readOut': readOut, 
+                                'exposureTime': self.properties[f'exposureTime_{survey}'],
+                                'numExposure': self.properties[f'numExposure_{survey}']}
+                    
+                    if self.config[f'gaussianNoise']:
+                        bkgNoise['noiseType'] = 'Gaussian'
+                    else:
+                        bkgNoise['noiseType'] = 'Poisson'                        
 
                 images = []
                 for i in range(self.properties['numViews']):
