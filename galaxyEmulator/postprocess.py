@@ -196,12 +196,6 @@ class PostProcess:
             for i, img in enumerate(bandpass_images):
                 img = img * conversion_to_Jy[i]
                 images_in_unit.append(img)
-        elif self.config['imageUnit'] == 'magnitude':
-            images_in_unit = []
-            for i, img in enumerate(bandpass_images):
-                img = img * conversion_to_Jy[i]
-                img = -2.5 * np.log10(img + 1e-10) + 8.90
-                images_in_unit.append(img)
         
         return images_in_unit
     
