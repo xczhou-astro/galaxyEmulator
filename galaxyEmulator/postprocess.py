@@ -257,7 +257,7 @@ class PostProcess:
                                                   f'Azimuth angle, in deg for view {count:02d}')
             header['FILTER'] = (self.properties[f'filters_{survey}'][i], 'Filter')
             header['EXPTIME'] = (self.properties[f'exposureTime_{survey}'][i], 'Exposure time, in s')
-            header['EXPTNUM'] = (self.properties[f'numExposure_{survey}'][i], 'Number of exposures')
+            header['EXPNUM'] = (self.properties[f'numExposure_{survey}'][i], 'Number of exposures')
             header['APERTURE'] = (self.properties[f'aperture_{survey}'], 'Aperture size, in meter')
             header['UNIT'] = (imageUnit, imageUnitComment)
             header['REDSHIFT'] = (self.properties['redshift'], 'Redshift')
