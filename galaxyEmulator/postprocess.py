@@ -447,7 +447,7 @@ class PostProcess:
                                 'exposureTime': self.properties[f'exposureTime_{survey}'],
                                 'numExposure': self.properties[f'numExposure_{survey}']}
                     
-                    if self.config[f'gaussianNoise']:
+                    if self.config[f'gaussianNoise_{survey}']:
                         bkgNoise['noiseType'] = 'Gaussian'
                     else:
                         bkgNoise['noiseType'] = 'Poisson'                        

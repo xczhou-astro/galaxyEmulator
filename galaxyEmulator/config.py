@@ -538,7 +538,7 @@ class Configuration:
                                         self.flag_count += 1
                             
                             if self.__exist_return(f'includeBkg_{survey}'):
-                                self.__exist(f'gaussianNoise')
+                                self.__exist(f'gaussianNoise_{survey}')
                                 self.__match(f'filters_{survey}', f'skyBkg_{survey}', True)
                                 self.__match(f'filters_{survey}', f'darkCurrent_{survey}', True)
                                 self.__match(f'filters_{survey}', f'readOut_{survey}', True)
