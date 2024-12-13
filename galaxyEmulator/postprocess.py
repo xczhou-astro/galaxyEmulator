@@ -193,6 +193,7 @@ class PostProcess:
                     images_with_bkg.append(img + noise)
                     
             elif bkgNoise['noiseType'] == 'Poisson':
+                images_with_bkg = []
                 for i, img in enumerate(bandpass_images):
                     mean = (skyBkg[i] + darkCurrent[i])*exposureTime[i]*numExposure[i]
                     img = img + mean
