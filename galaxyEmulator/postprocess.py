@@ -346,7 +346,7 @@ class PostProcess:
                             color='white', font_properties={'size': 12})
         ax.add_artist(scalebar)
         ax.text(x=0.05, y=0.15, s=fr'${{\rm log}}M_{{\star}} = {logM}$',
-                         fontsize=12, transform=ax.transAxes, color='black')
+                         fontsize=12, transform=ax.transAxes, color='white')
         ax.text(x=0.05, y=0.1, s=fr'$z$={z}', fontsize=12,
                 transform=ax.transAxes, color='white')
         ax.text(x=0.05, y=0.05, s=f'ID:{self.subhaloID}', fontsize=12,
