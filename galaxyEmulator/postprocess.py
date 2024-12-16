@@ -259,7 +259,7 @@ class PostProcess:
             # header['NAXIS3'] = (images[0][i].shape[1], 'Length of data axis 3')
             header['SNAPNUM'] = (self.config['snapNum'], 'Snapshot ID of IllustrisTNG')
             header['ID'] = (self.properties['subhaloID'], 'Subhalo ID')
-            header['MASS'] = (self.properties['subhaloMass'], 'Subhalo stellar mass, in 10^10 Msun')
+            header['MASS'] = (self.properties['subhaloMass'], 'Subhalo stellar mass, in log10 scale (Msun)')
             header['SURVEY'] = (survey, 'Survey')
             header['NFILTERS'] = (numfilters, 'Number of filters')
             header['NUMVIEWS'] = (self.properties['numViews'], 'Number of views')
