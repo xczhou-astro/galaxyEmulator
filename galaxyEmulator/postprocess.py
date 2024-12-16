@@ -325,6 +325,7 @@ class PostProcess:
         pixels = np.array(image).shape[0]
         
         z = str(np.around(self.properties['redshift'], 2))
+        logM = str(np.around(self.properties['subhaloMass'], 1))
         
         fig, ax = plt.subplots()
         ax.axis('off')
@@ -344,6 +345,8 @@ class PostProcess:
                             location='lower right', scale_loc='top',
                             color='white', font_properties={'size': 12})
         ax.add_artist(scalebar)
+        ax.text(x=0.05, y=0.15, s=fr'${{\rm log}}M_{{\star}} = {logM}$',
+                         fontsize=12, transform=ax.transAxes, color='black')
         ax.text(x=0.05, y=0.1, s=fr'$z$={z}', fontsize=12,
                 transform=ax.transAxes, color='white')
         ax.text(x=0.05, y=0.05, s=f'ID:{self.subhaloID}', fontsize=12,
