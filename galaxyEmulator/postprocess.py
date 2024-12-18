@@ -147,13 +147,13 @@ class PostProcess:
             Jy_converter = Jy_converter.to(u.Jy).value
             conversion_to_Jy.append(Jy_converter)
 
-        # bandpass_images = []
-        # for img, tran, wave, factor in zip(image_arrs, trans, waves, factors):
-        #     bandpass_images.append(self.__calculate_bandpass(img, tran, wave, factor))
+        bandpass_images = []
+        for img, tran, wave, factor in zip(image_arrs, trans, waves, factors):
+            bandpass_images.append(self.__calculate_bandpass(img, tran, wave, factor))
 
         
-        bandpass_images = Parallel(n_jobs=numfils, prefer='threads')(delayed(self.__calculate_bandpass)(img, tran, wave, factor)
-                                                   for img, tran, wave, factor in zip(image_arrs, trans, waves, factors))
+        # bandpass_images = Parallel(n_jobs=numfils, prefer='threads')(delayed(self.__calculate_bandpass)(img, tran, wave, factor)
+        #                                            for img, tran, wave, factor in zip(image_arrs, trans, waves, factors))
         
 
         resized_imgs = []
