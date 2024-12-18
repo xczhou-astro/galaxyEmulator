@@ -261,8 +261,8 @@ class PreProcess:
                 
                 if self.config['DISMModel'] == 'Camps_2016':
         
-                    othermask = np.where(gasPart['StarFormationRate'] > 0) \
-                                    | (gasPart['Temperature'] < np.float32(self.config['temperatureThreshold']))[0]
+                    othermask = np.where((gasPart['StarFormationRate'] > 0) \
+                                    | (gasPart['Temperature'] < np.float32(self.config['temperatureThreshold'])))[0]
                     mask = np.intersect1d(spatialmask, othermask)
                     size = mask.shape[0]
                 
