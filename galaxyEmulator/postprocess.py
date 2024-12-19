@@ -14,6 +14,7 @@ from matplotlib_scalebar.scalebar import ScaleBar
 from matplotlib_scalebar.dimension import _Dimension
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from photutils.segmentation import make_2dgaussian_kernel
+import pickle
 
 class ParsecDimension(_Dimension):
     def __init__(self):
@@ -26,10 +27,17 @@ class PostProcess:
 
         self.config = config
         self.dataDir = self.config['dataDir']
-        self.properties = properties
+        self.properties = self.__get_properties()
         self.workingDir = self.config['workingDir']
         self.subhaloID = self.properties['subhaloID']
-
+        
+    def __get_properties(self):
+        path = os.path.join(self.workingDir, 'properties.pkl')
+        with open(path, 'rb') as f:
+            properties = pickle.load(f)
+        
+        return properties
+            
     def __load_method(self, format):
         if format == '.npy':
             method = np.load
