@@ -413,6 +413,9 @@ class PostProcess:
             surveys = split(self.config['surveys'])
             
             for survey in surveys:
+                
+                print(f'Begin postprocessing for {survey}')
+                
                 filters = self.properties[f'filters_{survey}']
                 saveBaseDir = f'mock_{survey}/Subhalo_{self.subhaloID}'
                 os.makedirs(saveBaseDir, exist_ok=True)
@@ -512,6 +515,8 @@ class PostProcess:
                     sedFilenames = [f'mock_{survey}/Subhalo_{self.subhaloID}/galaxy_SED_view_{i:02d}.png' 
                                     for i in range(self.properties['numViews'])]
                     self.__show_images(imgFilenames, sedFilenames, self.subhaloID, survey)
+                
+                print(f'Finish postprocessing for {survey}')
                 
             if self.config['saveDataCube']:
                 self.__saveDataCube()
