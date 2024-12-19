@@ -8,6 +8,7 @@ import subprocess
 from .utils import *
 from scipy.spatial import cKDTree
 import sys
+import pickle
 
 class Galaxy:
 
@@ -534,6 +535,11 @@ class PreProcess:
 
     def runSKIRT(self):
         self.__run_skirt()
+        prop = self.get_properties()
+        dict_path = os.path.join(self.workingDir, 'properties.pkl')
+        with open(dict_path, 'wb') as f:
+            pickle.dump(prop, f)
+        
 
     def __run_skirt(self):
 
