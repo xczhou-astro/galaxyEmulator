@@ -11,7 +11,7 @@ Python packages:
 `scipy==1.13.1`  
 `matplotlib==3.9.2`  
 `astropy==7.0.0` ⚠️  
-`skimage==0.24.0`  
+`scikit-image==0.24.0`  
 `joblib==1.4.2`  
 `matplotlib_scalebar==0.8.1`  
 `h5py==3.9.0` ⚠️  
