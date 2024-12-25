@@ -23,7 +23,7 @@ class ParsecDimension(_Dimension):
 
 class PostProcess:
 
-    def __init__(self, properties, config):
+    def __init__(self, config):
 
         self.config = config
         self.dataDir = self.config['dataDir']
@@ -227,11 +227,24 @@ class PostProcess:
         
         return images_in_unit
     
+    def __save_basics(self, directory):
+        copyfile(os.path.join(self.workingDir, 'skirt_parameters.xml'),
+                os.path.join(directory, 'skirt_parameters.xml'))
+        copyfile(os.path.join(self.workingDir, 'quenched_stars.txt'),
+                os.path.join(directory, 'quenched_stars.txt'))
+        copyfile(os.path.join(self.workingDir, 'starforming_stars.txt'),
+                os.path.join(directory, 'starforming_stars.txt'))
+        copyfile(os.path.join(self.workingDir, 'dusts.txt'),
+                os.path.join(directory, 'dusts.txt'))
+        
+
+    
     def __saveDataCube(self):
         numViews = np.int32(self.config['numViews'])
         
         datacubeDir = f'dataCubes/Subhalo_{self.subhaloID}'
         os.makedirs(datacubeDir, exist_ok=True)
+        self.__save_basics(datacubeDir)
         for i in range(numViews):
             shutil.move(os.path.join(self.workingDir, f'skirt_view_{i:02d}_total.fits'),
                         os.path.join(datacubeDir, f'skirt_view_{i:02d}_total.fits'))
@@ -261,10 +274,6 @@ class PostProcess:
         
         for i in range(numfilters):
             header = fits.Header()
-            # header['NAXIS'] = (numfilters, 'Number of data axes')
-            # header['NAXIS1'] = (self.properties['numViews'], 'Length of data axis 1')
-            # header['NAXIS2'] = (images[0][i].shape[0], 'Length of data axis 2')
-            # header['NAXIS3'] = (images[0][i].shape[1], 'Length of data axis 3')
             header['SNAPNUM'] = (self.config['snapNum'], 'Snapshot ID of IllustrisTNG')
             header['ID'] = (self.properties['subhaloID'], 'Subhalo ID')
             header['MASS'] = (self.properties['subhaloMass'], 'Subhalo stellar mass, in log10 scale (Msun)')
@@ -307,9 +316,6 @@ class PostProcess:
             shape = sed.shape
             
             header = fits.Header()
-            # header['NAXIS'] = (2, 'number of data axes')
-            # header['NAXIS1'] = (shape[0], 'length of data axis 1')
-            # header['NAXIS2'] = (shape[1], 'length of data axis 2')
             header['WUNIT'] = ('micron', 'Units of wavelength')
             header['FUNIT'] = ('Jy', 'Units of flux in F_nu')
             header['INCLI'] = (self.properties['inclinations'][i], 'Inclination angle, in deg')
@@ -325,10 +331,6 @@ class PostProcess:
 
     def __plot_image(self, image, res, savedFilename=None):
 
-        # if isinstance(image, Image.Image):
-        #     pixels = np.array(image).shape[0]
-        # else:
-        #     pixels = np.array(image).shape[0]
 
         pixels = np.array(image).shape[0]
         
@@ -419,7 +421,7 @@ class PostProcess:
             self.__saveDataCube()
         else:
             surveys = split(self.config['surveys'])
-            
+
             for survey in surveys:
                 
                 print(f'Begin postprocessing for {survey}')
@@ -427,14 +429,15 @@ class PostProcess:
                 filters = self.properties[f'filters_{survey}']
                 saveBaseDir = f'mock_{survey}/Subhalo_{self.subhaloID}'
                 os.makedirs(saveBaseDir, exist_ok=True)
-                copyfile(os.path.join(self.workingDir, 'skirt_parameters.xml'),
-                        os.path.join(saveBaseDir, 'skirt_parameters.xml'))
-                copyfile(os.path.join(self.workingDir, 'quenched_stars.txt'),
-                        os.path.join(saveBaseDir, 'quenched_stars.txt'))
-                copyfile(os.path.join(self.workingDir, 'starforming_stars.txt'),
-                        os.path.join(saveBaseDir, 'starforming_stars.txt'))
-                copyfile(os.path.join(self.workingDir, 'dusts.txt'),
-                        os.path.join(saveBaseDir, 'dusts.txt'))
+                self.__save_basics(saveBaseDir)
+                # copyfile(os.path.join(self.workingDir, 'skirt_parameters.xml'),
+                #         os.path.join(saveBaseDir, 'skirt_parameters.xml'))
+                # copyfile(os.path.join(self.workingDir, 'quenched_stars.txt'),
+                #         os.path.join(saveBaseDir, 'quenched_stars.txt'))
+                # copyfile(os.path.join(self.workingDir, 'starforming_stars.txt'),
+                #         os.path.join(saveBaseDir, 'starforming_stars.txt'))
+                # copyfile(os.path.join(self.workingDir, 'dusts.txt'),
+                #         os.path.join(saveBaseDir, 'dusts.txt'))
 
                 dataCubeFilenames = [os.path.join(self.workingDir, f'skirt_view_{i:02d}_total.fits')
                                      for i in range(self.properties['numViews'])]
