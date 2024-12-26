@@ -236,6 +236,8 @@ class PostProcess:
                 os.path.join(directory, 'starforming_stars.txt'))
         copyfile(os.path.join(self.workingDir, 'dusts.txt'),
                 os.path.join(directory, 'dusts.txt'))
+        copyfile(os.path.join(self.workingDir, 'properties.pkl'),
+                os.path.join(directory ,'properties.pkl'))
         
 
     
@@ -421,7 +423,7 @@ class PostProcess:
             self.__saveDataCube()
         else:
             surveys = split(self.config['surveys'])
-
+            
             for survey in surveys:
                 
                 print(f'Begin postprocessing for {survey}')
