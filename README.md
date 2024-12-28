@@ -1,6 +1,6 @@
 # galaxyEmulator
 
-# !!! This project is renamed as [galaxyGenius](https://github.com/xczhou-astro/galaxyGenius). Updates will not be applied in current repo, and will be deleted soon. !!!
+## !!! This project is renamed as [galaxyGenius](https://github.com/xczhou-astro/galaxyGenius). Updates will not be applied in current repo, and will be deleted soon. !!!
 
 Galaxy emulation from [IllustrisTNG](https://www.tng-project.org/) using [SKIRT](https://skirt.ugent.be/root/_home.html) for various observations.
 
